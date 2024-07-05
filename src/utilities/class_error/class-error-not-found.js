@@ -1,9 +1,9 @@
-class validationError extends Error {
+class ClientError extends Error {
   constructor(error) {
     super(error.message);
 
-    this.name = "validationError";
-    this.status = 400;
+    this.name = "Not Found";
+    this.status = 404;
     this.message = this.message;
     this.path = error.path;
 
@@ -19,4 +19,4 @@ class validationError extends Error {
   }
 }
 
-export { validationError };
+export { ClientError };

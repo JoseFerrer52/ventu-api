@@ -2,7 +2,7 @@ import express from "express";
 import logger from "morgan";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
-import { resError } from "./utilities/resError.js";
+import { resError } from "./utilities/res-error.js";
 //import { roter } from "./router/database.routes.js";
 import { router } from "./router/index.routes.js";
 export const app = express();
@@ -27,6 +27,7 @@ app.use("/api", router)
 //   });
 
   app.use((error, req, res, next)=>{
+    console.log(error);
     const {status, message, path, name} = error
     resError(res, status, message, name, path)
   })
