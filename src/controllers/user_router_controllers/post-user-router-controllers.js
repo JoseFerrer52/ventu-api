@@ -1,27 +1,44 @@
 import { response } from "../../utilities/response.js";
-import { insertproducts } from "../../services/DB/query-database.js";
-import { resgiterSale, registerOtherIncomes } from "../../services/DB/query-database.js";
+import { registerproduct, resgiterSale, resgitreSaleReceivable, registerCustomerPaymentReceivable, registerOtherIncome, registerExpenses } from "../../services/DB/query-database.js";
 
 
  export const postProducts = async (req, res) => {
     const data = req.body
-    await insertproducts(data)
+    const query = await registerproduct(data)
 
-    response(res, 200, "Producto guardado con exito", {})
+    response(res, 200, query, {})
 }
 
 
 export const postSale = async (req, res) =>{
     const data = req.body
-    const {businessUserID, customerName, customerPhone, productID, saleDate, saleDescription, saleAmount, quantity } = data
-    await resgitreSale(data)
+    const query = await resgiterSale(data)
 
-    response(res, 200, "Venta registrada con exito", {})
+    response(res, 200, query, {})
 }
 
-export const postOtherIncomes = async(req, res)=>{
+export const postSaleReceivable = async (req, res) =>{
     const data = req.body
-    const {businessUserID, description, date, amount, additionalNote} = data
-    await resgitreOtherIncomes(data)
-    response(res, 200, "Ingreso Agregado con exito", {})
+    const query = await resgitreSaleReceivable(data)
+
+    response(res, 200, query, {})
+}
+
+export const postSaleCustomerPaymentReceivable = async (req, res) =>{
+    const data = req.body
+    const query = await registerCustomerPaymentReceivable(data)
+
+    response(res, 200, query, {})
+}
+
+export const postOtherIncome = async(req, res)=>{
+    const data = req.body
+    const query = await registerOtherIncome(data)
+    response(res, 200, query, {})
+}
+
+export const postExpenses = async(req, res)=>{
+    const data = req.body
+    const query = await registerExpenses(data)
+    response(res, 200, query, {})
 }

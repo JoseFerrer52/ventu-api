@@ -6,16 +6,16 @@ export const deleteProduct = async (req, res) => {
   const id = req.params.id
   const data = req.body
 
-  const result = await productDelete(data, id) 
+  const query = await productDelete(data, id) 
 
-  response(res, 200, result, {});
+  response(res, 200, query, {});
 };
 
 export const deleteCustomer = async (req, res) => {
   const id = req.params.id
   const data = req.body
 
-  const result = await customerDelete(data, id) 
+  const query = await customerDelete(data, id) 
 
-  response(res, 200, result, {});
+  response(res, 200, query, {});
 };
