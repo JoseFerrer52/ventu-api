@@ -1,14 +1,17 @@
 import { response } from "../../utilities/response.js";
-import { registerproduct, resgiterSale, resgitreSaleReceivable, registerCustomerPaymentReceivable, registerOtherIncome, registerExpenses } from "../../services/DB/query-database.js";
+import { registerproduct, resgiterSale, resgiterSaleReceivable, registerCustomerPaymentReceivable, registerOtherIncome, registerExpenses } from "../../services/DB/query-database.js";
 
 
  export const postProducts = async (req, res) => {
     const data = req.body
-    const query = await registerproduct(data)
+    const file = req.file
+    
+    const productImage = await uploadImageToServer(file)
+
+    const query = await registerproduct(data, productImage)
 
     response(res, 200, query, {})
 }
-
 
 export const postSale = async (req, res) =>{
     const data = req.body
@@ -19,7 +22,7 @@ export const postSale = async (req, res) =>{
 
 export const postSaleReceivable = async (req, res) =>{
     const data = req.body
-    const query = await resgitreSaleReceivable(data)
+    const query = await resgiterSaleReceivable(data)
 
     response(res, 200, query, {})
 }

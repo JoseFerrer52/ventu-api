@@ -7,13 +7,12 @@ import { resError } from "./utilities/res-error.js";
 import { router } from "./router/index.routes.js";
 export const app = express();
 const __dirname = dirname(fileURLToPath(import.meta.url))
-
+ console.log(__dirname);
 
 
 
 app.use(express.json())
 app.use(logger("dev"))
-
 app.use("/api", router)
 // app.use((error, req, res, next) => {
 //     console.log("aqui",error);

@@ -4,8 +4,7 @@ import { selectProduct, selectProducts, selectCustomer, selectCustomers, selectT
 export const getAlltransaction = async (req, res) => {
   const data = req.params.id
   const date = req.params.business
-  console.log(data);
-  console.log(date);
+
   const products = await selectTransations(date);
   response(res, 200, "ok", products);
 };

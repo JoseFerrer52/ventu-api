@@ -5,9 +5,9 @@ import { forbiddenErrorResponse } from "../../utilities/errors/error-forbidden.j
 import { conflictErrorResponse } from "../../utilities/errors/error-Conflict.js";
 import { checkPassword } from "../../auth/check_password.js";
 
-async function resgitreUser(data, userPassword) {
+async function resgitreUser(data, userPassword, businessLogo) {
   const pool = await conectarABaseDeDatos()
-  const {rows} = await pool.query("CALL sp_singup_user(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)", [data.firstName, data.lastName, data.userName, userPassword, data.userDateCreation, data.updateDate, data.sectorId, data.businessName, data.businessDateCreation, data.businessUpdateDate, data.description, data.businessLogo]) 
+  const {rows} = await pool.query("CALL sp_singup_user(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)", [data.firstName, data.lastName, data.userName, userPassword, data.userDateCreation, data.updateDate, data.sectorId, data.businessName, data.businessDateCreation, data.businessUpdateDate, data.description, businessLogo]) 
   const [result] = await pool.query("SELECT @o_state_code AS state, @o_response AS res");
   const stateCode = result[0].state;
   const message = result[0].res
@@ -17,9 +17,9 @@ async function resgitreUser(data, userPassword) {
     }
 }
 
-async function UpadteUser(data, userPassword) {
+async function UpadteUser(data, userPassword, businessLogo) {
   const pool = await conectarABaseDeDatos()
-  const {rows} = await pool.query("CALL sp_update_business(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)", [data.userId, data.firstName, data.lastName, data.userName, userPassword, data.updateDate, data.userBusinessId, data.sectorId, data.businessName, data.businessUpdateDate, data.description, data.businessLogo])
+  const {rows} = await pool.query("CALL sp_update_business(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)", [data.userId, data.firstName, data.lastName, data.userName, userPassword, data.updateDate, data.userBusinessId, data.sectorId, data.businessName, data.businessUpdateDate, data.description, businessLogo])
   const [result] = await pool.query("SELECT @o_state_code AS state, @o_response AS res");
   const stateCode = result[0].state;
   const message = result[0].res
@@ -120,9 +120,9 @@ async function selectProduct (data){
   }
 }
 
-async function registerproduct (data){
+async function registerproduct (data, productImage){
   const pool = await conectarABaseDeDatos()
-  const [rows] = await pool.query('CALL sp_create_product (?, ?, ?, ?, ?, @o_state_code, @o_response)', [data.userId, data.businessUserId, data.productImage, data.productName, data.productDescription])
+  const [rows] = await pool.query('CALL sp_create_product (?, ?, ?, ?, ?, @o_state_code, @o_response)', [data.userId, data.businessUserId, productImage, data.productName, data.productDescription])
   const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
   const stateCode = result[0].state;
   const message = result[0].message;
@@ -133,9 +133,9 @@ async function registerproduct (data){
   }
 }
 
-async function updateProduct (data, id){
+async function updateProduct (data, id, productImage){
   const pool = await conectarABaseDeDatos()
-  const [rows] = await pool.query('CALL sp_update_product(?, ?, ?, ?, ?, ?, @o_state_code, @o_response)', [data.userId, data.businessUserId, id, data.productImage, data.productName, data.productDescription]);
+  const [rows] = await pool.query('CALL sp_update_product(?, ?, ?, ?, ?, ?, @o_state_code, @o_response)', [data.userId, data.businessUserId, id, productImage, data.productName, data.productDescription]);
   const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
   const stateCode = result[0].state;
   const message = result[0].message;
@@ -181,7 +181,7 @@ async function resgiterSale(data){
   }
 }
 
-async function resgitreSaleReceivable(data){
+async function resgiterSaleReceivable(data){
   const pool = await conectarABaseDeDatos()
   const {rows} = await pool.query('CALL sp_create_sale_receivable(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)',[data.userId, data.businessUserId, data.customerId, data.customerName, data.customerPhone, data.customerAlias, data.productId, data.saleTypeId, data.saleDate, data.saleDescription, data.saleAmount, data.intemQuantity, data.receivableDescription, data.additionalNote, data.debtAmount])
   const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
@@ -245,5 +245,5 @@ async function registerExpenses(data){
 
 export { resgitreUser, UpadteUser, authUser, selectCustomers, updateCustomer, customerDelete, selectCustomer,
        selectProducts, selectProduct, registerproduct, updateProduct, productDelete, resgiterSale, 
-       resgitreSaleReceivable, registerCustomerPaymentReceivable, registerOtherIncome, registerExpenses,selectTransations
+       resgiterSaleReceivable, registerCustomerPaymentReceivable, registerOtherIncome, registerExpenses,selectTransations
 }
