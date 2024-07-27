@@ -1,8 +1,10 @@
 import { response } from "../../utilities/response.js";
+import { uploadImageToServer } from "../../services/generate_image_link/upload-image-to-server.js";
 import { registerproduct, resgiterSale, resgiterSaleReceivable, registerCustomerPaymentReceivable, registerOtherIncome, registerExpenses } from "../../services/DB/query-database.js";
 
 
  export const postProducts = async (req, res) => {
+    const userId = req.params.id
     const data = req.body
     const file = req.file
     

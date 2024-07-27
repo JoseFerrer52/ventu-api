@@ -3,247 +3,956 @@ import { validationErrorResponse } from "../../utilities/errors/error-validation
 import { notFoundErrorResponse } from "../../utilities/errors/error-not-found.js";
 import { forbiddenErrorResponse } from "../../utilities/errors/error-forbidden.js";
 import { conflictErrorResponse } from "../../utilities/errors/error-Conflict.js";
+import { mergeBusinessData } from "../../controllers/adapters/adapter_transaction.js";
 import { checkPassword } from "../../auth/check_password.js";
 
-async function resgitreUser(data, userPassword, businessLogo) {
-  const pool = await conectarABaseDeDatos()
-  const {rows} = await pool.query("CALL sp_singup_user(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)", [data.firstName, data.lastName, data.userName, userPassword, data.userDateCreation, data.updateDate, data.sectorId, data.businessName, data.businessDateCreation, data.businessUpdateDate, data.description, businessLogo]) 
-  const [result] = await pool.query("SELECT @o_state_code AS state, @o_response AS res");
-  const stateCode = result[0].state;
-  const message = result[0].res
-  
-    if (stateCode === 4) {
-      conflictErrorResponse(message);
-    }
-}
-
-async function UpadteUser(data, userPassword, businessLogo) {
-  const pool = await conectarABaseDeDatos()
-  const {rows} = await pool.query("CALL sp_update_business(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)", [data.userId, data.firstName, data.lastName, data.userName, userPassword, data.updateDate, data.userBusinessId, data.sectorId, data.businessName, data.businessUpdateDate, data.description, businessLogo])
-  const [result] = await pool.query("SELECT @o_state_code AS state, @o_response AS res");
-  const stateCode = result[0].state;
-  const message = result[0].res
-    
-    if(stateCode === 3){
-      forbiddenErrorResponse(message)
-    }else{
-      return message
-    }
-}
-
-async function authUser(data){
-  const pool = await conectarABaseDeDatos()
-  const [rows] = await pool.query("CALL sp_singin_user(?, @o_state_code, @o_response)", [data.userName]);
-  const [result] = await pool.query("SELECT @o_state_code AS state, @o_response AS message");
-  const stateCode = result[0].state;
-  const message = result[0].message;
-
-    if (stateCode === 1) {
-      validationErrorResponse(message);
-}   else {
-  const response = rows[0][0];
-  const password = response.user_password;
-  const id = response.user_id;
-  const token = checkPassword(data, password, id);
-  return token
-  }  
-}
-
-async function selectTransations (date){
+export const selectBusinessRubros = async () => {
   const pool = await conectarABaseDeDatos();
-  const [result] = await pool.query('SELECT * FROM sale_details WHERE user_business_id = ?', [date])
-  return result
-}
+  const [rows] = await pool.query(
+    `SELECT 
+      business_rubro_id AS businessRubros,
+      business_sector_category AS businessSectorCategory
+      FROM business_rubros`
+  );
 
-async function selectCustomers (date){
+  const businessRubros = { rubros: rows };
+  await pool.end();
+  return businessRubros;
+
+};
+
+export const resgitreUser = async (data, userPassword, businessLogo) => {
   const pool = await conectarABaseDeDatos();
-  const [result] = await pool.query('SELECT * FROM customers WHERE user_business_id = ?', [date])
-
-  const response = result
-  return response
-}
-
-async function selectCustomer (date,){
-  const pool = await conectarABaseDeDatos();
-  const [result] = await pool.query('SELECT * FROM customers WHERE customer_id= ?', [data]);
-  return customer
-}
-
-async function updateCustomer (data, id){
-  const pool = await conectarABaseDeDatos()
-  const [rows] = await pool.query('CALL sp_update_customer(?, ?, ?, ?, ?, ?,  @o_state_code, @o_response)', [data.userId, data.userBusinessId, id, data.customerName, data.customerPhone, data.customerAlias,]);
-  const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
-  const stateCode = result[0].state;
-  const message = result[0].message;
-
-    if(stateCode === 3){
-      forbiddenErrorResponse(message)
-   }else if(stateCode === 2) {
-      notFoundErrorResponse(message);
-    }else{
-      return message
-   }
-}
-
-async function customerDelete(data, id){
-  const pool = await conectarABaseDeDatos()
-  const [rows] = await pool.query('CALL sp_delete_customer(?, ?, ?,  @o_state_code, @o_response)', [data.userId, data.userBusinessId, id,]);
-  const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
-  const stateCode = result[0].state;
-  const message = result[0].message;
-  
-    if(stateCode === 3){
-      forbiddenErrorResponse(message)
-    }else if(stateCode === 2) {
-      notFoundErrorResponse(message);
-    }else{
-      return message
-    }
-}
-
-async function selectProducts (date){
-    const pool = await conectarABaseDeDatos();
-    const [rows] = await pool.query('SELECT * FROM products WHERE user_business_id =?', [date]);
-    return rows;
-}
-
-async function selectProduct (data){
-    const pool = await conectarABaseDeDatos();
+  const { rows } = await pool.query(
+    "CALL sp_singup_user(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
+    [
+      data.firstName,
+      data.lastName,
+      data.userName,
+      userPassword,
+      data.userDateCreation,
+      data.updateDate,
+      data.sectorId,
+      data.businessName,
+      data.businessDateCreation,
+      data.businessUpdateDate,
+      data.description,
+      businessLogo,
+    ]
+  );
   const [result] = await pool.query(
-  'SELECT * FROM products WHERE product_id= ?', [data]);
-
-  const product = result[0];
-    if (product === undefined) {
-    //ejecutar error 404
-  }else{
-    return product
-  }
-}
-
-async function registerproduct (data, productImage){
-  const pool = await conectarABaseDeDatos()
-  const [rows] = await pool.query('CALL sp_create_product (?, ?, ?, ?, ?, @o_state_code, @o_response)', [data.userId, data.businessUserId, productImage, data.productName, data.productDescription])
-  const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
+    "SELECT @o_state_code AS state, @o_response AS res"
+  );
   const stateCode = result[0].state;
-  const message = result[0].message;
-   if (stateCode === 3) {
-    forbiddenErrorResponse(message)
-   } else{
-     return message
+  const message = result[0].res;
+
+  if (stateCode === 4) {
+    await pool.end();
+    conflictErrorResponse(message);
   }
-}
+  await pool.end();
+  return message;
+};
 
-async function updateProduct (data, id, productImage){
-  const pool = await conectarABaseDeDatos()
-  const [rows] = await pool.query('CALL sp_update_product(?, ?, ?, ?, ?, ?, @o_state_code, @o_response)', [data.userId, data.businessUserId, id, productImage, data.productName, data.productDescription]);
-  const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
-  const stateCode = result[0].state;
-  const message = result[0].message;
-   
-    if(stateCode === 3){
-      forbiddenErrorResponse(message)
-    }else if(stateCode === 2) {
-      notFoundErrorResponse(message);
-    }else{
-      return message
-    }
-}
-
-async function productDelete(data, id){
+export const UpadteUser = async (data, userPassword, businessLogo) => {
   const pool = await conectarABaseDeDatos();
-  const [rows] = await pool.query('CALL sp_delete_product(?, ?, ?, @o_state_code, @o_response)',[data.userId, data.businessUserId, id]);
-  const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
+  const { rows } = await pool.query(
+    "CALL sp_update_business(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
+    [
+      data.userId,
+      data.firstName,
+      data.lastName,
+      data.userName,
+      userPassword,
+      data.updateDate,
+      data.userBusinessId,
+      data.sectorId,
+      data.businessName,
+      data.businessUpdateDate,
+      data.description,
+      businessLogo,
+    ]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS res"
+  );
   const stateCode = result[0].state;
-  const message = result[0].message;
+  const message = result[0].res;
 
-    if(stateCode === 3){
-      forbiddenErrorResponse(message)
-    }else if(stateCode === 2) {
-      notFoundErrorResponse(message);
-    }else{
-      return message
-    }
-}
-
-async function resgiterSale(data){
-  const pool = await conectarABaseDeDatos()
-  const {rows} = await pool.query('CALL sp_create_sale(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)',[data.userId, data.businessUserId, data.customerId, data.customerName, data.customerPhone, data.customerAlias, data.productId, data.saleTypeId, data.saleDate, data.saleDescription, data.saleAmount, data.intemQuantity])
-  const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
-  const stateCode = result[0].state;
-  const message = result[0].message;
-
-  if(stateCode === 3){
-    forbiddenErrorResponse(message)
-  }else if(stateCode === 2) {
-    notFoundErrorResponse(message);
-  }else{
-    return message
-  }
-}
-
-async function resgiterSaleReceivable(data){
-  const pool = await conectarABaseDeDatos()
-  const {rows} = await pool.query('CALL sp_create_sale_receivable(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)',[data.userId, data.businessUserId, data.customerId, data.customerName, data.customerPhone, data.customerAlias, data.productId, data.saleTypeId, data.saleDate, data.saleDescription, data.saleAmount, data.intemQuantity, data.receivableDescription, data.additionalNote, data.debtAmount])
-  const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
-  const stateCode = result[0].state;
-  const message = result[0].message;
-
-  if(stateCode === 3){
-    forbiddenErrorResponse(message)
-  }else if(stateCode === 2) {
-    notFoundErrorResponse(message);
-  }else{
-    return message
-  }
-}
-
-async function registerCustomerPaymentReceivable(data){
-  const pool = await conectarABaseDeDatos()
-  const {rows} = await pool.query('CALL sp_create_customer_payment_receivable(?, ?, ?, ?, ?, ?, @o_state_code, @o_response)',[data.userId, data.businessUserId, data.saleReceivableId, data.saleDate, data.receivableDescription, data.saleAmount])
-  const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
-  const stateCode = result[0].state;
-  const message = result[0].message;
-
-  if(stateCode === 3){
-    forbiddenErrorResponse(message)
-  }else if(stateCode === 2) {
-    notFoundErrorResponse(message);
-  }else{
-    return message
-  }
-}
-
-
-async function registerOtherIncome(data){
-  const pool = await conectarABaseDeDatos()
-  const {rows} = await pool.query('CALL sp_create_other_incomes(?, ?, ?, ?, ?, ?, @o_state_code, @o_response)',[data.userId, data.businessUserId, data.description, data.date, data.amount, data.additionalNote])
-  const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
-  const stateCode = result[0].state;
-  const message = result[0].message;
- 
   if (stateCode === 3) {
-    forbiddenErrorResponse(message)
-   } else{
-     return message
+    await pool.end();
+    forbiddenErrorResponse(message);
+  } else {
+    await pool.end();
+    return message;
   }
-}
+};
 
-async function registerExpenses(data){
-  const pool = await conectarABaseDeDatos()
-  const {rows} = await pool.query('CALL sp_create_expenses(?, ?, ?, ?, ?, ?, @o_state_code, @o_response)',[data.userId, data.businessUserId, data.expensesDescription, data.expensesdate, data.expensesAmount, data.expensesAdditionalNote])
-  const [result] = await pool.query('SELECT @o_state_code AS state, @o_response AS message');
+export const authUser = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "CALL sp_singin_user(?, @o_state_code, @o_response)",
+    [data.userName]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS message"
+  );
   const stateCode = result[0].state;
   const message = result[0].message;
- 
-  if (stateCode === 3) {
-    forbiddenErrorResponse(message)
-   } else{
-     return message
+
+  if (stateCode === 1) {
+    await pool.end();
+    validationErrorResponse(message);
+  } else {
+    const response = rows[0][0];
+    const password = response.user_password;
+    const id = response.user_id;
+    const token = checkPassword(data, password, id);
+    await pool.end();
+    return token;
   }
+};
+
+export const selectAllTransactions = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "SELECT user_business_id FROM user_business WHERE user_id = ?",
+    [data.userId]
+  );
+
+  if (rows.length === 0) {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    return;
+  }
+  if (rows[0].user_business_id === data.userBusinessId) {
+    const [rows, fields] = await pool.execute(
+      `
+      SELECT
+          i.income_id AS incomeId,
+          i.type_transaction_id AS typeTransactionId,
+          i.type_income_id AS typeIncomeId,
+          tc.transaction_category AS typeTransaction,
+          si.income_category AS typeIncome,
+          sd.sale_details_id AS transactionId,
+          sd.sale_date AS date,
+          sd.sale_description AS description,
+          sd.sale_amount AS amount,
+          'venta' AS incomeType
+      FROM
+          incomes i
+      INNER JOIN
+        type_transaction tc ON i.type_transaction_id = tc.type_transaction_id
+      INNER JOIN
+          type_income si ON i.type_income_id = si.type_income_id
+      LEFT JOIN
+          sale_details sd ON i.income_id = sd.income_id
+      WHERE
+          i.user_business_id = ?
+      
+      UNION ALL
+      
+      SELECT
+          i.income_id AS incomeId,
+          i.type_transaction_id AS typeTransactionId,
+          i.type_income_id AS typeIncomeId,
+          tc.transaction_category AS typeTransaction,
+          si.income_category AS typeIncome,
+          oi.other_income_id AS transactionId,
+          oi.incomes_date AS date,
+          oi.income_description AS description,
+          oi.income_amount AS amount,
+          'otros' AS incomeType
+      FROM
+          incomes i
+      INNER JOIN
+        type_transaction tc ON i.type_transaction_id = tc.type_transaction_id
+      INNER JOIN
+          type_income si ON i.type_income_id = si.type_income_id
+      LEFT JOIN
+          other_incomes oi ON i.income_id = oi.income_id
+      WHERE
+          i.user_business_id = ?;
+  `,
+      [data.userBusinessId, data.userBusinessId]
+    );
+
+    const [result] = await pool.execute(
+      ` 
+    SELECT
+          e.expenses_id AS expensesId,
+          e.type_transaction_id AS typeTransactionId,
+          tc.transaction_category AS typeTransaction,
+          et.expenses_category AS typeExpenses,
+          e.expenses_date AS date,
+          e.expenses_description AS description,
+          e.expenses_amount AS amount
+    FROM
+        expenses e
+    INNER JOIN
+        type_transaction tc ON e.type_transaction_id = tc.type_transaction_id
+    INNER JOIN
+        expenses_type et ON e.expenses_type_id = et.expenses_type_id 
+    WHERE
+          e.user_business_id = ?;`,
+      [data.userBusinessId]
+    );
+
+    const mergedResult = await mergeBusinessData(rows);
+    const transaction = { income: mergedResult, expense: result };
+    await pool.end();
+    return transaction;
+  } else {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+  }
+};
+
+export const selectSale = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "SELECT user_business_id FROM user_business WHERE user_id = ?",
+    [data.userId]
+  );
+
+  if (rows.length === 0) {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    return;
+  }
+  const [result] = await pool.query(
+    "SELECT user_business_id FROM sale_details WHERE sale_details_id = ?",
+    [data.transactionId]
+  );
+  if (result.length === 0) {
+    await pool.end();
+    notFoundErrorResponse("La venta no existe");
+    return;
+  }
+  if (
+    (rows[0].user_business_id === data.userBusinessId &&
+      result[0].user_business_id === data.userBusinessId)
+  ) {
+    const [rows, fields] = await pool.execute(
+      `
+      SELECT
+          i.income_id AS incomeId,
+          si.income_category AS typeIncome,
+          c.customer_name AS customerName,
+          c.customer_phone AS customerPhone,
+          c.customer_alias AS alias,
+          its.item_quantity AS itemQuantity,
+          p.product_image AS productImage,
+          p.product_name AS productName,
+          p.product_description AS productDescription,
+          st.sale_category AS saleType,
+          sd.sale_details_id AS transactionId,
+          stp.sale_type_id AS saleTypeId,
+          sd.sale_date AS date,
+          sd.sale_description AS description,
+          sd.sale_amount AS amount,
+          'venta' AS incomeType
+      FROM
+          incomes i
+      INNER JOIN
+          type_income si ON i.type_income_id = si.type_income_id
+      INNER JOIN
+          sale_details sd ON i.income_id = sd.income_id
+      INNER JOIN
+          customers c ON c.customer_id = sd.customer_id
+      INNER JOIN
+          items_for_sales its ON its.item_sale_id = sd.item_sale_id
+       INNER JOIN
+          products p ON its.product_id = p.product_id
+      INNER JOIN
+          sale_registers stp ON stp.sale_register_id = sd.sale_register_id
+      INNER JOIN
+          sale_types st ON st.sale_type_id = stp.sale_type_id  
+      WHERE
+          sd.sale_details_id = ?`,
+      [data.transactionId]
+    );
+    await pool.end();
+    const transaction = { sale: rows[0] };
+    return transaction;
+  } else {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+  }
+};
+
+export const selectOtherIncome = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "SELECT user_business_id FROM user_business WHERE user_id = ?",
+    [data.userId]
+  );
+
+  if (rows.length === 0) {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    return;
+  }
+  const [result] = await pool.query(
+    "SELECT user_business_id FROM other_incomes WHERE other_income_id = ?",
+    [data.transactionId]
+  );
+  if (result.length === 0) {
+    await pool.end();
+    notFoundErrorResponse("Ingreso no existe");
+    return;
+  }
+  if (
+    rows[0].user_business_id === data.userBusinessId &&
+    result[0].user_business_id === data.userBusinessId
+  ) {
+    const [rows, fields] = await pool.execute(
+      `
+       SELECT
+          i.income_id AS incomeId,
+          si.income_category AS typeIncome,
+          oi.other_income_id AS transactionId,
+          oi.incomes_date AS date,
+          oi.income_description AS description,
+          oi.income_amount AS amount,
+          oi.income_additional_note AS additionalNote,
+          'otros' AS incomeType
+      FROM
+          incomes i
+      INNER JOIN
+          type_income si ON i.type_income_id = si.type_income_id
+      INNER JOIN
+          other_incomes oi ON i.income_id = oi.income_id
+      WHERE
+          oi.other_income_id = ?;
+  `,
+      [data.transactionId]
+    );
+
+    await pool.end();
+    const transaction = { sale: rows[0] };
+    return transaction;
+  } else {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+  }
+};
+
+export const selectExpenses = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "SELECT user_business_id FROM user_business WHERE user_id = ?",
+    [data.userId]
+  );
+
+  if (rows.length === 0) {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    return;
+  }
+  const [result] = await pool.query(
+    "SELECT user_business_id FROM expenses WHERE expenses_id = ?",
+    [data.expensesId]
+  );
+  if (result.length === 0) {
+    await pool.end();
+    notFoundErrorResponse("El egreso  no existe");
+    return;
+  }
+  if (
+    rows[0].user_business_id === data.userBusinessId &&
+    result[0].user_business_id === data.userBusinessId
+  ) {
+    const [rows] = await pool.execute(
+      ` 
+      SELECT
+            e.expenses_id AS expenseId,
+            et.expenses_category AS typeExpenses,
+            e.expenses_date AS date,
+            e.expenses_description AS description,
+            e.expenses_amount AS amount,
+            e.expenses_additional_note AS additionalNote
+      FROM
+          expenses e
+      INNER JOIN
+          expenses_type et ON e.expenses_type_id = et.expenses_type_id 
+      WHERE
+            e.expenses_id = ?;`,
+      [data.expensesId]
+    );
+    const transaction = { expenses: rows[0] };
+    await pool.end();
+    return transaction;
+  } else {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+  }
+};
+
+export const selectAllSaleReceivable = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "SELECT user_business_id FROM user_business WHERE user_id = ?",
+    [data.userId]
+  );
+
+  if (rows.length === 0) {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    return;
+  }
+
+  if (rows[0].user_business_id === data.userBusinessId) {
+    const [result] = await pool.query(
+      "SELECT sale_receivable_id AS saleReceivableId, debt_status AS debtStatus, receivable_description AS receivableDescription, additional_note AS additionaNote, debt_amount AS debtAmount FROM sale_receivable WHERE user_business_id = ?",
+      [data.userBusinessId]
+    );
+
+    const transaction = { saleReceivable: result };
+    await pool.end();
+    return transaction;
+  } else {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+  }
+};
+
+export const selectSaleReceivable = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "SELECT user_business_id FROM user_business WHERE user_id = ?",
+    [data.userId]
+  );
+
+  if (rows.length === 0) {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    return;
+  }
+  const [result] = await pool.query(
+    "SELECT user_business_id FROM sale_receivable WHERE sale_receivable_id = ?",
+    [data.saleReceivableId]
+  );
+  if (result.length === 0) {
+    await pool.end();
+    notFoundErrorResponse("La venta por cobrar no existe");
+    return;
+  }
+  if (
+    rows[0].user_business_id === data.userBusinessId &&
+    result[0].user_business_id === data.userBusinessId
+  ) {
+    const [rows, fields] = await pool.execute(
+      `
+        SELECT
+            sr.sale_receivable_id AS transactionId,
+            c.customer_name AS customerName,
+            c.customer_phone AS customerPhone,
+            c.customer_alias AS alias,
+            its.item_quantity AS itemQuantity,
+            p.product_image AS productImage,
+            p.product_name AS productName,
+            p.product_description AS productDescription,
+            st.sale_category AS saleType,
+            stp.sale_type_id AS saleTypeId,
+            sr.debt_status AS status,
+            sr.receivable_description AS description,
+            sr.additional_note AS additionalNote,
+            sr.debt_amount AS amount
+        FROM
+            sale_receivable sr
+        INNER JOIN
+            customers c ON c.customer_id = sr.customer_id
+        INNER JOIN
+            items_for_sales its ON its.item_sale_id = sr.item_sale_id
+         INNER JOIN
+            products p ON its.product_id = p.product_id
+        INNER JOIN
+            sale_registers stp ON stp.sale_register_id = sr.sale_register_id
+        INNER JOIN
+            sale_types st ON st.sale_type_id = stp.sale_type_id  
+        WHERE
+            sr.sale_receivable_id = ?`,
+      [data.saleReceivableId]
+    );
+
+    const transaction = { saleReceivable: rows[0] };
+    await pool.end();
+    return transaction;
+  } else {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+  }
+};
+
+export const selectAllCustomers = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "SELECT user_business_id FROM user_business WHERE user_id = ?",
+    [data.userId]
+  );
+
+  if (rows.length === 0) {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    return;
+  }
+
+  if (rows[0].user_business_id === data.userBusinessId) {
+    const [result] = await pool.query(
+      "SELECT customer_id AS customerId, customer_name AS customerName, customer_phone AS customerPhone, customer_alias AS customerAlias FROM customers WHERE user_business_id = ?",
+      [data.userBusinessId]
+    );
+
+    const customers = { customers: result };
+    await pool.end();
+    return customers;
+  } else {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+  }
+};
+
+export const selectCustomer = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "SELECT user_business_id FROM user_business WHERE user_id = ?",
+    [data.userId]
+  );
+
+  if (rows.length === 0) {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    return;
+  }
+  const [result] = await pool.query(
+    "SELECT user_business_id, customer_active FROM customers WHERE customer_id = ?",
+    [data.customerId]
+  );
+  if (result.length === 0 || result[0].customer_active === 0) {
+    await pool.end();
+    notFoundErrorResponse("Cliente no existe");
+    return;
+  }
+
+  if (rows[0].user_business_id === data.userBusinessId) {
+    const [result] = await pool.query(
+      "SELECT customer_id AS customerId, customer_name AS customerName, customer_phone AS customerPhone, customer_alias AS customerAlias FROM customers WHERE customer_id = ?",
+      [data.customerId]
+    );
+
+    const customer = { customer: result[0] };
+    await pool.end();
+    return customer;
+  } else {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+  }
+};
+
+export const updateCustomer = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "CALL sp_update_customer(?, ?, ?, ?, ?, ?,  @o_state_code, @o_response)",
+    [
+      data.userId,
+      data.userBusinessId,
+      data.customerId,
+      data.customerName,
+      data.customerPhone,
+      data.customerAlias,
+    ]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS message"
+  );
+  const stateCode = result[0].state;
+  const message = result[0].message;
+
+  if (stateCode === 3) {
+    forbiddenErrorResponse(message);
+  } else if (stateCode === 2) {
+    notFoundErrorResponse(message);
+  } else {
+    return message;
+  }
+};
+
+export const customerDelete = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "CALL sp_delete_customer(?, ?, ?,  @o_state_code, @o_response)",
+    [data.userId, data.userBusinessId, data.customerId]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS message"
+  );
+  const stateCode = result[0].state;
+  const message = result[0].message;
+
+  if (stateCode === 3) {
+    forbiddenErrorResponse(message);
+  } else if (stateCode === 2) {
+    notFoundErrorResponse(message);
+  } else {
+    return message;
+  }
+};
+
+export const selectAllProducts = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "SELECT user_business_id FROM user_business WHERE user_id = ?",
+    [data.userId]
+  );
+  if (rows.length === 0) {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    return;
+  }
+  if (rows[0].user_business_id === data.userBusinessId) {
+    const [result] = await pool.query(
+      "SELECT product_id AS productId, product_image AS productImage, product_name AS productName, product_description AS productDescription FROM productS WHERE user_business_id = ?",
+      [data.userBusinessId]
+    );
+
+    const products = { products: result };
+    await pool.end();
+    return products;
+  } else {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+  }
+};
+
+export const selectProduct = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "SELECT user_business_id FROM user_business WHERE user_id = ?",
+    [data.userId]
+  );
+  if (rows.length === 0) {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    return;
+  }
+  const [result] = await pool.query(
+    "SELECT user_business_id, product_active FROM products WHERE product_id = ?",
+    [data.productId]
+  );
+  if (result.length === 0 || result[0].product_active === 0) {
+    await pool.end();
+    notFoundErrorResponse("Producto no existe");
+    return;
+  }
+  if (rows[0].user_business_id === data.userBusinessId) {
+    const [result] = await pool.query(
+      "SELECT product_id AS productId, product_image AS productImage, product_name AS productName, product_description AS productDescription FROM products WHERE product_id = ?",
+      [data.productId]
+    );
+
+    const product = { product: result[0] };
+    await pool.end();
+    return product;
+  } else {
+    await pool.end();
+    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+  }
+};
+
+export const registerproduct = async (data, productImage) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "CALL sp_create_product (?, ?, ?, ?, ?, @o_state_code, @o_response)",
+    [
+      data.userId,
+      data.userBusinessId,
+      productImage,
+      data.productName,
+      data.productDescription,
+    ]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS message"
+  );
+  const stateCode = result[0].state;
+  const message = result[0].message;
+  if (stateCode === 3) {
+    await pool.end();
+    forbiddenErrorResponse(message);
+  } else {
+    await pool.end();
+    return message;
+  }
+};
+
+export const updateProduct = async (data, productImage) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "CALL sp_update_product(?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
+    [
+      data.userId,
+      data.userBusinessId,
+      data.productId,
+      productImage,
+      data.productName,
+      data.productDescription,
+    ]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS message"
+  );
+  const stateCode = result[0].state;
+  const message = result[0].message;
+
+  if (stateCode === 3) {
+    await pool.end();
+    forbiddenErrorResponse(message);
+  } else if (stateCode === 2) {
+    await pool.end();
+    notFoundErrorResponse(message);
+  } else {
+    await pool.end();
+    return message;
+  }
+};
+
+export const productDelete = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(
+    "CALL sp_delete_product(?, ?, ?, @o_state_code, @o_response)",
+    [data.userId, data.userBusinessId, data.productId]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS message"
+  );
+
+  const stateCode = result[0].state;
+  const message = result[0].message;
+
+  if (stateCode === 3) {
+    await pool.end();
+    forbiddenErrorResponse(message);
+  } else if (stateCode === 2) {
+    await pool.end();
+    notFoundErrorResponse(message);
+  } else {
+    await pool.end();
+    return message;
+  }
+};
+
+export const selectTypeTransaction = async () =>{
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(`
+    SELECT 
+    type_transaction_id AS typeTransactionId,
+    transaction_category AS transactionCategory
+    FROM type_transaction`)
+
+  const typeTransaction = { typeTransaction: rows };
+
+  return typeTransaction;
+
 }
 
 
-export { resgitreUser, UpadteUser, authUser, selectCustomers, updateCustomer, customerDelete, selectCustomer,
-       selectProducts, selectProduct, registerproduct, updateProduct, productDelete, resgiterSale, 
-       resgiterSaleReceivable, registerCustomerPaymentReceivable, registerOtherIncome, registerExpenses,selectTransations
+export const selectTypeIncome = async () =>{
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(`
+    SELECT 
+    type_income_id AS typeIncomeId,
+    income_category AS incomeCategory
+    FROM type_income`)
+
+  const typeIncome = { typeIncome: rows };
+
+  return typeIncome;
+
 }
+
+
+export const selectSaleTypes = async () =>{
+  const pool = await conectarABaseDeDatos();
+  const [rows] = await pool.query(`
+    SELECT 
+    sale_type_id AS saleTypeId,
+    sale_category AS saleCategory
+    FROM sale_types`)
+
+  const typeSale = { typeSale: rows };
+
+  return typeSale;
+
+}
+
+export const resgiterSale = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const { rows } = await pool.query(
+    "CALL sp_create_sale(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
+    [
+      data.userId,
+      data.userBusinessId,
+      data.customerId,
+      data.customerName,
+      data.customerPhone,
+      data.customerAlias,
+      data.productId,
+      data.typeTransactionId,
+      data.typeIncomeId,
+      data.saleTypeId,
+      data.saleDate,
+      data.saleDescription,
+      data.saleAmount,
+      data.intemQuantity,
+    ]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS message"
+  );
+  const stateCode = result[0].state;
+  const message = result[0].message;
+
+  if (stateCode === 3) {
+    await pool.end();
+    forbiddenErrorResponse(message);
+  } else if (stateCode === 2) {
+    await pool.end();
+    notFoundErrorResponse(message);
+  } else {
+    await pool.end();
+    return message;
+  }
+};
+
+export const resgiterSaleReceivable = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const { rows } = await pool.query(
+    "CALL sp_create_sale_receivable(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
+    [
+      data.userId,
+      data.userBusinessId,
+      data.customerId,
+      data.customerName,
+      data.customerPhone,
+      data.customerAlias,
+      data.productId,
+      data.typeTransactionId,
+      data.typeIncomeId,
+      data.saleTypeId,
+      data.saleDate,
+      data.saleDescription,
+      data.saleAmount,
+      data.intemQuantity,
+      data.receivableDescription,
+      data.additionalNote,
+      data.debtAmount,
+    ]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS message"
+  );
+  const stateCode = result[0].state;
+  const message = result[0].message;
+
+  if (stateCode === 3) {
+    await pool.end();
+    forbiddenErrorResponse(message);
+  } else if (stateCode === 2) {
+    await pool.end();
+    notFoundErrorResponse(message);
+  } else {
+    await pool.end();
+    return message;
+  }
+};
+
+export const registerCustomerPaymentReceivable = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const { rows } = await pool.query(
+    "CALL sp_create_customer_payment_receivable(?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
+    [
+      data.userId,
+      data.userBusinessId,
+      data.saleReceivableId,
+      data.saleDate,
+      data.receivableDescription,
+      data.saleAmount,
+    ]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS message"
+  );
+  const stateCode = result[0].state;
+  const message = result[0].message;
+
+  if (stateCode === 3) {
+    await pool.end();
+    forbiddenErrorResponse(message);
+  } else if (stateCode === 2) {
+    await pool.end();
+    notFoundErrorResponse(message);
+  } else {
+    await pool.end();
+    return message;
+  }
+};
+
+export const registerOtherIncome = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const { rows } = await pool.query(
+    "CALL sp_create_other_incomes(?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
+    [
+      data.userId,
+      data.userBusinessId,
+      data.typeTransactionId,
+      data.typeIncomeId,
+      data.description,
+      data.date,
+      data.amount,
+      data.additionalNote
+    ]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS message"
+  );
+  const stateCode = result[0].state;
+  const message = result[0].message;
+
+  if (stateCode === 3) {
+    await pool.end();
+    forbiddenErrorResponse(message);
+  } else {
+    await pool.end();
+    return message;
+  }
+};
+
+export const registerExpenses = async (data) => {
+  const pool = await conectarABaseDeDatos();
+  const { rows } = await pool.query(
+    "CALL sp_create_expenses(?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
+    [
+      data.userId,
+      data.userBusinessId,
+      data.typeTransactionId,
+      data.expensesDescription,
+      data.expensesDate,
+      data.expensesAmount,
+      data.expensesAdditionalNote,
+    ]
+  );
+  const [result] = await pool.query(
+    "SELECT @o_state_code AS state, @o_response AS message"
+  );
+  const stateCode = result[0].state;
+  const message = result[0].message;
+
+  if (stateCode === 3) {
+    await pool.end();
+    forbiddenErrorResponse(message);
+  } else {
+    await pool.end();
+    return message;
+  }
+};

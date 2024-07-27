@@ -7,7 +7,7 @@ export const putCustomer = async (req, res) => {
   const id = req.params.id
   const data = req.body
   
-  const query = await updateCustomer(data, id)
+  const query = await updateCustomer(data)
   
    response(res, 200, query, {});
 };
@@ -19,10 +19,10 @@ export const putProduct = async (req, res) => {
    const file = req.file
    
    if (!file) {
-      const query = await updateProduct(data, id, file);
+      const query = await updateProduct(data, file);
    } else {
       const productimage = await uploadImageToServer(file)
-      const query = await updateProduct(data, id, productimage);
+      const query = await updateProduct(data, productimage);
    }
    
     response(res, 200, query, {});
