@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { generaToken } from "./index.js";
+import { validationErrorResponse } from "../utilities/errors/error-validation.js";
 
 async function checkPassword(data, password, id) {
   const match = await new Promise((resolve, reject) => {
@@ -14,8 +15,8 @@ async function checkPassword(data, password, id) {
     const token = generaToken({ id });
     return token
   } else {
-    const errorMessage = "Nombre de usurio o contraseña incorreta";
-    validateResponse(errorMessage);
+    const errorMessage = "Nombre de usurio o contraseña invalida.";
+    validationErrorResponse(errorMessage);
   }
 }
 

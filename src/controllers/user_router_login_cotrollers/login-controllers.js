@@ -22,7 +22,7 @@ export const singIn = async (req, res) => {
 
   const query  = await authUser(data)
 
-  response(res, 200, "ok", { query });
+  response(res, 200, "ok", query );
 };
 
 

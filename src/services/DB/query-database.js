@@ -3,8 +3,9 @@ import { validationErrorResponse } from "../../utilities/errors/error-validation
 import { notFoundErrorResponse } from "../../utilities/errors/error-not-found.js";
 import { forbiddenErrorResponse } from "../../utilities/errors/error-forbidden.js";
 import { conflictErrorResponse } from "../../utilities/errors/error-Conflict.js";
-import { mergeBusinessData } from "../../controllers/adapters/adapter_transaction.js";
-import { checkPassword } from "../../auth/check_password.js";
+import { mergeBusinessData } from "../../controllers/adapters/adapter-transaction.js";
+import { mergeUserData } from "../../controllers/adapters/adapter-regitersUser.js";
+import { checkPassword } from "../../auth/check-password.js";
 
 export const selectBusinessRubros = async () => {
   const pool = await conectarABaseDeDatos();
@@ -36,7 +37,7 @@ export const resgitreUser = async (data, userPassword, businessLogo) => {
       data.businessName,
       data.businessDateCreation,
       data.businessUpdateDate,
-      data.description,
+      data.businessDescription,
       businessLogo,
     ]
   );
@@ -107,9 +108,29 @@ export const authUser = async (data) => {
     const response = rows[0][0];
     const password = response.user_password;
     const id = response.user_id;
-    const token = checkPassword(data, password, id);
+    const token = await checkPassword(data, password, id);
+    
+    const [result, fields] = await pool.execute(
+    `SELECT
+          u.user_id AS userId,
+          u.first_name AS firstName,
+          u.last_name AS lastName,
+          ub.user_business_id AS userBusinessId,
+          ub.business_name AS businessName,
+          ub.business_logo AS businessLogo
+      FROM
+          users u
+      INNER JOIN
+        user_business ub ON u.user_id = ub.user_id
+      WHERE
+          u.user_id = ?`,[id]
+    )
+    
+    const arrayMap = [result[0], token]
+    const mergedResult = await mergeUserData(arrayMap);
+    const dataUser = {dataUser: mergedResult[0]}
     await pool.end();
-    return token;
+    return dataUser;
   }
 };
 
@@ -122,7 +143,7 @@ export const selectAllTransactions = async (data) => {
 
   if (rows.length === 0) {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
     return;
   }
   if (rows[0].user_business_id === data.userBusinessId) {
@@ -204,7 +225,7 @@ export const selectAllTransactions = async (data) => {
     return transaction;
   } else {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
   }
 };
 
@@ -217,7 +238,7 @@ export const selectSale = async (data) => {
 
   if (rows.length === 0) {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
     return;
   }
   const [result] = await pool.query(
@@ -226,7 +247,7 @@ export const selectSale = async (data) => {
   );
   if (result.length === 0) {
     await pool.end();
-    notFoundErrorResponse("La venta no existe");
+    notFoundErrorResponse("Venta no encontrada.");
     return;
   }
   if (
@@ -277,7 +298,7 @@ export const selectSale = async (data) => {
     return transaction;
   } else {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
   }
 };
 
@@ -290,7 +311,7 @@ export const selectOtherIncome = async (data) => {
 
   if (rows.length === 0) {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
     return;
   }
   const [result] = await pool.query(
@@ -299,7 +320,7 @@ export const selectOtherIncome = async (data) => {
   );
   if (result.length === 0) {
     await pool.end();
-    notFoundErrorResponse("Ingreso no existe");
+    notFoundErrorResponse("Ingreso no encontrado.");
     return;
   }
   if (
@@ -334,7 +355,7 @@ export const selectOtherIncome = async (data) => {
     return transaction;
   } else {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
   }
 };
 
@@ -347,7 +368,7 @@ export const selectExpenses = async (data) => {
 
   if (rows.length === 0) {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
     return;
   }
   const [result] = await pool.query(
@@ -356,7 +377,7 @@ export const selectExpenses = async (data) => {
   );
   if (result.length === 0) {
     await pool.end();
-    notFoundErrorResponse("El egreso  no existe");
+    notFoundErrorResponse("Egreso no encontrado.");
     return;
   }
   if (
@@ -385,7 +406,7 @@ export const selectExpenses = async (data) => {
     return transaction;
   } else {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
   }
 };
 
@@ -398,7 +419,7 @@ export const selectAllSaleReceivable = async (data) => {
 
   if (rows.length === 0) {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
     return;
   }
 
@@ -413,7 +434,7 @@ export const selectAllSaleReceivable = async (data) => {
     return transaction;
   } else {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
   }
 };
 
@@ -426,7 +447,7 @@ export const selectSaleReceivable = async (data) => {
 
   if (rows.length === 0) {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
     return;
   }
   const [result] = await pool.query(
@@ -435,7 +456,7 @@ export const selectSaleReceivable = async (data) => {
   );
   if (result.length === 0) {
     await pool.end();
-    notFoundErrorResponse("La venta por cobrar no existe");
+    notFoundErrorResponse("venta por cobrar no encontrada.");
     return;
   }
   if (
@@ -481,7 +502,7 @@ export const selectSaleReceivable = async (data) => {
     return transaction;
   } else {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
   }
 };
 
@@ -494,7 +515,7 @@ export const selectAllCustomers = async (data) => {
 
   if (rows.length === 0) {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
     return;
   }
 
@@ -509,7 +530,7 @@ export const selectAllCustomers = async (data) => {
     return customers;
   } else {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
   }
 };
 
@@ -522,7 +543,7 @@ export const selectCustomer = async (data) => {
 
   if (rows.length === 0) {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
     return;
   }
   const [result] = await pool.query(
@@ -531,7 +552,7 @@ export const selectCustomer = async (data) => {
   );
   if (result.length === 0 || result[0].customer_active === 0) {
     await pool.end();
-    notFoundErrorResponse("Cliente no existe");
+    notFoundErrorResponse("Cliente no encontrado.");
     return;
   }
 
@@ -546,7 +567,7 @@ export const selectCustomer = async (data) => {
     return customer;
   } else {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
   }
 };
 
@@ -607,7 +628,7 @@ export const selectAllProducts = async (data) => {
   );
   if (rows.length === 0) {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
     return;
   }
   if (rows[0].user_business_id === data.userBusinessId) {
@@ -621,7 +642,7 @@ export const selectAllProducts = async (data) => {
     return products;
   } else {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
   }
 };
 
@@ -633,7 +654,7 @@ export const selectProduct = async (data) => {
   );
   if (rows.length === 0) {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
     return;
   }
   const [result] = await pool.query(
@@ -642,7 +663,7 @@ export const selectProduct = async (data) => {
   );
   if (result.length === 0 || result[0].product_active === 0) {
     await pool.end();
-    notFoundErrorResponse("Producto no existe");
+    notFoundErrorResponse("Producto no encontrado.");
     return;
   }
   if (rows[0].user_business_id === data.userBusinessId) {
@@ -656,20 +677,21 @@ export const selectProduct = async (data) => {
     return product;
   } else {
     await pool.end();
-    forbiddenErrorResponse("No tienes Permiso para hacer esto");
+    forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
   }
 };
 
 export const registerproduct = async (data, productImage) => {
   const pool = await conectarABaseDeDatos();
   const [rows] = await pool.query(
-    "CALL sp_create_product (?, ?, ?, ?, ?, @o_state_code, @o_response)",
+    "CALL sp_create_product (?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
     [
       data.userId,
       data.userBusinessId,
       productImage,
       data.productName,
       data.productDescription,
+      data.productAmount
     ]
   );
   const [result] = await pool.query(
