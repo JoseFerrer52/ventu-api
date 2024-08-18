@@ -18,7 +18,9 @@ import { PaymentReceivableValidate, createPaymentReceivableValidation } from "..
 import { getCustomerValidate, createGetCustomerValidation } from "../controllers/validations/get-customer-validation.js";
 import { GetProductValidate, createGetProductVaValidation } from "../controllers/validations/get-product-validation.js";
 import { getSaleReceivableValidate, createGetSaleReceivableValidation } from "../controllers/validations/get-sale-receivable-validation.js";
-
+import { validateUpadteUser, createFormUpadteUserValidation, createFileUpadteUserValidation } from "../controllers/validations/UpadteUser-validation.js";
+import { updateProductValidate, createUpdateProductValidation, createFileUpdateProductValidation } from "../controllers/validations/update-product-validation.js";
+import { updateCustomerValidate, createUpdateCustomerValidation } from "../controllers/validations/update-customer-validation.js";
 import { cachedAsync } from "../utilities/cached-async.js";
 
 
@@ -26,29 +28,29 @@ const router = Router()
 
 router.get("/rubros", cachedAsync(getRubros))
 
-router.post("/singUp", upload.single("file"), validate(createFileValidation, createFormValidation), cachedAsync(singUp))
+router.post("/singUp", upload.single("file"), validate(createFormValidation, createFileValidation), cachedAsync(singUp))
 
 router.post("/singIn", singInValidate(createSingInValidation), cachedAsync(singIn))
 
-router.put("/udate-user", upload.single("file"), cachedAsync(putUser))
+router.put("/update-user", upload.single("file"), validateUpadteUser(createFormUpadteUserValidation, createFileUpadteUserValidation), cachedAsync(putUser))
 
 router.post("/get-all-customers", getAllTransactionValidate(getAllTransactionValidation), cachedAsync(getAllCustomers))
 
 router.post("/get-customer", getCustomerValidate(createGetCustomerValidation), cachedAsync(getCustomer))
 
-router.put("/update-customer/", cachedAsync(putCustomer))
+router.put("/update-customer", updateCustomerValidate(createUpdateCustomerValidation), cachedAsync(putCustomer))
 
-router.delete("/delete-customer/", getCustomerValidate(createGetCustomerValidation), cachedAsync(deleteCustomer))
+router.put("/delete-customer/", getCustomerValidate(createGetCustomerValidation), cachedAsync(deleteCustomer))
+
+router.post("/register-product", upload.single("file"), productValidate(createProductValidation, createFileProductValidation), cachedAsync(postProducts))
 
 router.post("/get-all-products", getAllTransactionValidate(getAllTransactionValidation), cachedAsync(getAllProducts))
 
 router.post("/get-product", GetProductValidate(createGetProductVaValidation), cachedAsync(getProduct))
 
-router.post("/register-product/", upload.single("file"), productValidate(createProductValidation, createFileProductValidation), cachedAsync(postProducts))
+router.put("/update-product", upload.single("file"), updateProductValidate(createUpdateProductValidation, createFileUpdateProductValidation), cachedAsync(putProduct))
 
-router.put("/update-product/", upload.single("file"), cachedAsync(putProduct))
-
-router.delete("/delete-product/", GetProductValidate(createGetProductVaValidation), cachedAsync(deleteProduct))
+router.put("/delete-product/", GetProductValidate(createGetProductVaValidation), cachedAsync(deleteProduct))
 
 router.get("/type-transaction", cachedAsync(getTypeTransaction))
 

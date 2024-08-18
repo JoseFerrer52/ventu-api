@@ -26,7 +26,7 @@ function singInValidate(createSingInValidation) {
         .string()
         .min(8, "Nombre de uario o contraseña invalada.")
         .max(20, "Nombre de uario o contraseña invalada.")
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&.]{8,20}$/, "Nombre de uario o contraseña invalada.")
+        .matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,20}$/, "Nombre de uario o contraseña invalada.")
         .required("Este campo Contraseña no puede estar vacio."),
     });
   

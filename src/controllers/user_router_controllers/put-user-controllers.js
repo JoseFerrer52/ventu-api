@@ -18,19 +18,21 @@ export const putProduct = async (req, res) => {
    const data = req.body
    const file = req.file
    
-   if (!file) {
-      const query = await updateProduct(data, file);
+   if ({}) {
+      const query = await updateProduct(data, null);
    } else {
       const productimage = await uploadImageToServer(file)
       const query = await updateProduct(data, productimage);
    }
    
-    response(res, 200, query, {});
+    response(res, 200, "ok", {});
  };
 
  export const putUser = async (req, res) => {
    const data = req.body
    const file = req.file
+   console.log(file);
+   
 
    if (!data.userPassword) {
    
@@ -39,7 +41,9 @@ export const putProduct = async (req, res) => {
       const encryp = await bcrypt.hash(data.userPassword, 5);
       const query = await UpadteUser(data, encryp);
    }
-   if(file){
+   if({}){
+      const query = await UpadteUser(data)
+   }else{
       const businessLogo = await uploadImageToServer(file)
       console.log(businessLogo)
       const query = await UpadteUser(data ,null, businessLogo)

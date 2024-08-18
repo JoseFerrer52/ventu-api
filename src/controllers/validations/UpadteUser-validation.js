@@ -12,11 +12,11 @@ const allowedMimeTypes = [
 
 const allowedResolutions = ["1920x1080", "1280x720", "720x480", "426x240"];
 
-function validate(createFormValidation, createFileValidation) {
+function validateUpadteUser(createFormUpadteUserValidation, createFileUpadteUserValidation) {
   return async (req, res, next) => {
     try {
-      const validatedData = await createFormValidation(req.body);
-      const validatedFile = await createFileValidation(req.file);
+      const validatedData = await createFormUpadteUserValidation(req.body);
+      const validatedFile = await createFileUpadteUserValidation(req.file);
 
       req.body = validatedData;
       req.file = validatedFile;
@@ -28,8 +28,22 @@ function validate(createFormValidation, createFileValidation) {
   };
 }
 
-async function createFormValidation(data) {
+async function createFormUpadteUserValidation(data) {
   const schema = yup.object().shape({
+    userId: yup
+      .number()
+      .transform((value) => {
+        return parseInt(value);
+      })
+      .typeError("Id invalido.")
+      .required("El campo id de usuario no puede estar vacio."),
+    userBusinessId: yup
+      .number()
+      .transform((value) => {
+        return parseInt(value);
+      })
+      .typeError("Id invalido.")
+      .required("El campo id de la empresa no puede estar vacio."),
     firstName: yup
       .string()
       .max(20, "El nombre no puede contener más de 20 caracteres")
@@ -37,7 +51,7 @@ async function createFormValidation(data) {
         /^[A-Za-zñÑáéíóúÁÉÍÓÚ]+(\s[A-Za-zñÑáéíóúÁÉÍÓÚ]+)*$/,
         "Nombre incorrecto"
       )
-      .required("El campo Nombre no puede estar vacio"),
+      .optional(),
     lastName: yup
       .string()
       .max(20, "El Apellido no puede contener más de 20 caracteres")
@@ -45,22 +59,22 @@ async function createFormValidation(data) {
         /^[A-Za-zñÑáéíóúÁÉÍÓÚ]+(\s[A-Za-zñÑáéíóúÁÉÍÓÚ]+)*$/,
         "Apellido incorrecto"
       )
-      .required("El campo Apellido no puede estar vacio"),
+      .optional(),
     userName: yup
       .string()
       .max(20, "El Nombre de usuario no puede contener más de 20 caracteres")
       .matches(/^[a-zA-Z0-9_]+$/, "Nombre de usario incorrecto")
-      .required("Este campo Nombre de usuario no puede estar vacio"),
+      .optional(),
     userPassword: yup
       .string()
       .min(8, "La contraseña debe contener minimo 8-20 caracteres")
       .max(20, "La contraseña debe contener minimo 8-20 caracteres")
       .matches(
         /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,20}$/,
-         
+
         "La contraseña debe contener al menos una letra mayúscula, una minúscula, un número y un carácter especial."
       )
-      .required("Este campo Contraseña no puede estar vacio"),
+      .optional(),
     userDateCreation: yup
       .string()
       .matches(
@@ -74,7 +88,7 @@ async function createFormValidation(data) {
         }
         return value;
       })
-      .required("El campo Fecha no puede estar vacio"),
+      .optional(),
     updateDate: yup
       .string()
       .matches(
@@ -88,7 +102,7 @@ async function createFormValidation(data) {
         }
         return value;
       })
-      .required("El campo Fecha no puede estar vacio"),
+      .optional(),
     sectorId: yup
       .number()
       .transform((value) => {
@@ -97,12 +111,12 @@ async function createFormValidation(data) {
       .typeError("Sector de empresa incorrecto")
       .min(1, "Sector de empresa incorrecto")
       .max(5, "Sector de empresa incorrecto")
-      .required("El campo sector de empresa no puede estar vacío"),
+      .optional(),
     businessName: yup
       .string("Este campo solo debe conterner una cadena de texto")
       .max(50, "El nombre no puede contener más de 50 caracteres")
       .matches(/^[a-zA-Z0-9 ,.\-]+$/, "Nombre incorrecto")
-      .required("El campo nombre de la empresa no puede estar vacio"),
+      .optional(),
     businessDateCreation: yup
       .string()
       .matches(
@@ -116,7 +130,7 @@ async function createFormValidation(data) {
         }
         return value;
       })
-      .required("El campo Fecha no puede estar vacio"),
+      .optional(),
     businessUpdateDate: yup
       .string()
       .matches(
@@ -131,34 +145,34 @@ async function createFormValidation(data) {
 
         return value;
       })
-      .required("El campo Fecha no puede estar vacio"),
+      .optional(),
     businessDescription: yup
       .string()
       .max(255, "La descripcion debe tener un maximo de 255 caracteres")
-      .required("El campo descripción no puede estar vacio"),
+      .optional(),
   });
 
   const validatedData = await schema.validate(data);
   return validatedData;
 }
 
-async function createFileValidation(file) {
+async function createFileUpadteUserValidation(file) {
   const schema = yup.object().shape({
     mimetype: yup
       .string()
       .oneOf(allowedMimeTypes, "El tipo de archivo es invalido")
-      .required("El tipo de archivo es requerido"),
+      .optional(),
     originalname: yup
       .string()
       .matches(
         /^.{0,255}$/,
         "El nombre original no debe exceder los 255 caracteres"
       )
-      .required("El nombre del archivo es requerido"),
+      .optional(),
   });
 
   const validatedFile = await schema.validate(file);
   return validatedFile;
 }
 
-export { validate, createFileValidation, createFormValidation };
+export { validateUpadteUser, createFormUpadteUserValidation, createFileUpadteUserValidation };

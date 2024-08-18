@@ -108,7 +108,7 @@ export const authUser = async (data) => {
     const response = rows[0][0];
     const password = response.user_password;
     const id = response.user_id;
-    const token = await checkPassword(data, password, id);
+    const passwordAndToken = await checkPassword(data, password, id);
     
     const [result, fields] = await pool.execute(
     `SELECT
@@ -125,9 +125,9 @@ export const authUser = async (data) => {
       WHERE
           u.user_id = ?`,[id]
     )
-    
-    const arrayMap = [result[0], token]
-    const mergedResult = await mergeUserData(arrayMap);
+    const token = passwordAndToken
+    const arrayMap = [result[0]]
+    const mergedResult = await mergeUserData(arrayMap, token);
     const dataUser = {dataUser: mergedResult[0]}
     await pool.end();
     return dataUser;
@@ -360,6 +360,8 @@ export const selectOtherIncome = async (data) => {
 };
 
 export const selectExpenses = async (data) => {
+  console.log("here!!!", data.transactionId);
+  
   const pool = await conectarABaseDeDatos();
   const [rows] = await pool.query(
     "SELECT user_business_id FROM user_business WHERE user_id = ?",
@@ -373,7 +375,7 @@ export const selectExpenses = async (data) => {
   }
   const [result] = await pool.query(
     "SELECT user_business_id FROM expenses WHERE expenses_id = ?",
-    [data.expensesId]
+    [data.transactionId]
   );
   if (result.length === 0) {
     await pool.end();
@@ -399,7 +401,7 @@ export const selectExpenses = async (data) => {
           expenses_type et ON e.expenses_type_id = et.expenses_type_id 
       WHERE
             e.expenses_id = ?;`,
-      [data.expensesId]
+      [data.transactionId]
     );
     const transaction = { expenses: rows[0] };
     await pool.end();
@@ -711,7 +713,7 @@ export const registerproduct = async (data, productImage) => {
 export const updateProduct = async (data, productImage) => {
   const pool = await conectarABaseDeDatos();
   const [rows] = await pool.query(
-    "CALL sp_update_product(?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
+    "CALL sp_update_product(?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
     [
       data.userId,
       data.userBusinessId,
@@ -719,6 +721,7 @@ export const updateProduct = async (data, productImage) => {
       productImage,
       data.productName,
       data.productDescription,
+      data.productAmount
     ]
   );
   const [result] = await pool.query(

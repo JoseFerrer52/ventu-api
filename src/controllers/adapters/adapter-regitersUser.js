@@ -1,4 +1,4 @@
-async function mergeUserData(data) {
+async function mergeUserData(data, token) {
     console.log(data);
     try {
         const mergedData = data.map((record) => {
@@ -9,7 +9,7 @@ async function mergeUserData(data) {
                 userBusinessId: record.userBusinessId,
                 businessName: record.businessName,
                 businessLogo: record.businessLogo,
-                token: record.token
+                token: token
             };
           });
         return mergedData;

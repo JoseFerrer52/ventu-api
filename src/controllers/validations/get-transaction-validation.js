@@ -58,7 +58,7 @@ async function createGetTransactionValidation(data) {
         .typeError("El tipo de venta es invalido.")
         .min(0, "El tipo de ingreso es invalido.")
         .max(2, "El tipo de ingreso es invalido.")
-        .required("El campo Tipo de ingreso no puede estar vacio."),
+        .optional("El campo Tipo de ingreso no puede estar vacio."),
       transactionId: yup
         .number()
         .transform((value) => {
