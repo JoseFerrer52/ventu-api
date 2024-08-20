@@ -1,4 +1,3 @@
-import { conectarABaseDeDatos } from "../../services/DB/database-connection.js";
 import { response } from "../../utilities/response.js";
 import { productDelete, customerDelete } from "../../services/DB/query-database.js";
 

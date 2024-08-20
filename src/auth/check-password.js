@@ -12,7 +12,7 @@ async function checkPassword(data, password, id) {
 
   if (match) {
     // Generar un token
-    const token = generaToken({ id });
+    const token = generaToken({ ...data, id });
     return token
   } else {
     const errorMessage = "Nombre de usurio o contraseña invalida.";

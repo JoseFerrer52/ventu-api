@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { upload } from "../controllers/middelware/upload-file.js";
+import { checkToken } from "../controllers/middelware/check-token/check-token.js";
 import { singIn, singUp } from "../controllers/user_router_login_cotrollers/login-controllers.js";
 import { postProducts, postSale, postSaleReceivable, postSaleCustomerPaymentReceivable, postOtherIncome, postExpenses } from "../controllers/user_router_controllers/post-user-router-controllers.js";
 import { getAllProducts, getAllCustomers, getCustomer, getProduct, getAlltransaction, getTransaction, getAllSaleReceivable, getSaleReceivable, getRubros, getTypeTransaction, getTypeIncome, getSaleType } from "../controllers/user_router_controllers/get-user-roter-controllers.js";
@@ -32,25 +33,25 @@ router.post("/singUp", upload.single("file"), validate(createFormValidation, cre
 
 router.post("/singIn", singInValidate(createSingInValidation), cachedAsync(singIn))
 
-router.put("/update-user", upload.single("file"), validateUpadteUser(createFormUpadteUserValidation, createFileUpadteUserValidation), cachedAsync(putUser))
+router.put("/update-user", checkToken(), upload.single("file"), validateUpadteUser(createFormUpadteUserValidation, createFileUpadteUserValidation), cachedAsync(putUser))
 
-router.post("/get-all-customers", getAllTransactionValidate(getAllTransactionValidation), cachedAsync(getAllCustomers))
+router.post("/get-all-customers", checkToken(), getAllTransactionValidate(getAllTransactionValidation), cachedAsync(getAllCustomers))
 
-router.post("/get-customer", getCustomerValidate(createGetCustomerValidation), cachedAsync(getCustomer))
+router.post("/get-customer", checkToken(), getCustomerValidate(createGetCustomerValidation), cachedAsync(getCustomer))
 
-router.put("/update-customer", updateCustomerValidate(createUpdateCustomerValidation), cachedAsync(putCustomer))
+router.put("/update-customer", checkToken(), updateCustomerValidate(createUpdateCustomerValidation), cachedAsync(putCustomer))
 
-router.put("/delete-customer/", getCustomerValidate(createGetCustomerValidation), cachedAsync(deleteCustomer))
+router.put("/delete-customer/", checkToken(), getCustomerValidate(createGetCustomerValidation), cachedAsync(deleteCustomer))
 
-router.post("/register-product", upload.single("file"), productValidate(createProductValidation, createFileProductValidation), cachedAsync(postProducts))
+router.post("/register-product", checkToken(), upload.single("file"), productValidate(createProductValidation, createFileProductValidation), cachedAsync(postProducts))
 
 router.post("/get-all-products", getAllTransactionValidate(getAllTransactionValidation), cachedAsync(getAllProducts))
 
-router.post("/get-product", GetProductValidate(createGetProductVaValidation), cachedAsync(getProduct))
+router.post("/get-product", checkToken(), GetProductValidate(createGetProductVaValidation), cachedAsync(getProduct))
 
-router.put("/update-product", upload.single("file"), updateProductValidate(createUpdateProductValidation, createFileUpdateProductValidation), cachedAsync(putProduct))
+router.put("/update-product", checkToken(), upload.single("file"), updateProductValidate(createUpdateProductValidation, createFileUpdateProductValidation), cachedAsync(putProduct))
 
-router.put("/delete-product/", GetProductValidate(createGetProductVaValidation), cachedAsync(deleteProduct))
+router.put("/delete-product/", checkToken(), GetProductValidate(createGetProductVaValidation), cachedAsync(deleteProduct))
 
 router.get("/type-transaction", cachedAsync(getTypeTransaction))
 
@@ -58,22 +59,22 @@ router.get("/type-income", cachedAsync(getTypeIncome))
 
 router.get("/type-sale", cachedAsync(getSaleType))
 
-router.post("/register-sale",saleValidate(createSaleValidation), cachedAsync(postSale))
+router.post("/register-sale", checkToken(), saleValidate(createSaleValidation), cachedAsync(postSale))
 
-router.post("/register-sale-receivable", saleReceivableValidate(createSaleReceivableValidation), cachedAsync(postSaleReceivable))
+router.post("/register-sale-receivable", checkToken(), saleReceivableValidate(createSaleReceivableValidation), cachedAsync(postSaleReceivable))
 
-router.post("/register-payment-receivable", PaymentReceivableValidate(createPaymentReceivableValidation), cachedAsync(postSaleCustomerPaymentReceivable))
+router.post("/register-payment-receivable", checkToken(), PaymentReceivableValidate(createPaymentReceivableValidation), cachedAsync(postSaleCustomerPaymentReceivable))
 
-router.post("/register-other-income", otherIncomeValidate(createOtherIncomeValidation), cachedAsync(postOtherIncome))
+router.post("/register-other-income", checkToken(), otherIncomeValidate(createOtherIncomeValidation), cachedAsync(postOtherIncome))
 
-router.post("/register-expenses", expensesValidate(createExpensesValidation), cachedAsync(postExpenses))
+router.post("/register-expenses", checkToken(), expensesValidate(createExpensesValidation), cachedAsync(postExpenses))
 
-router.post("/get-all-transaction", getAllTransactionValidate(getAllTransactionValidation), cachedAsync(getAlltransaction))
+router.post("/get-all-transaction", checkToken(), getAllTransactionValidate(getAllTransactionValidation), cachedAsync(getAlltransaction))
 
-router.post("/get-transaction", getTransactionValidate(createGetTransactionValidation), cachedAsync(getTransaction))
+router.post("/get-transaction", checkToken(), getTransactionValidate(createGetTransactionValidation), cachedAsync(getTransaction))
 
-router.post("/get-all-sale-receivable", getAllTransactionValidate(getAllTransactionValidation), cachedAsync(getAllSaleReceivable))
+router.post("/get-all-sale-receivable", checkToken(), getAllTransactionValidate(getAllTransactionValidation), cachedAsync(getAllSaleReceivable))
 
-router.post("/get-sale-receivable", getSaleReceivableValidate(createGetSaleReceivableValidation), cachedAsync(getSaleReceivable))
+router.post("/get-sale-receivable", checkToken(), getSaleReceivableValidate(createGetSaleReceivableValidation), cachedAsync(getSaleReceivable))
 
 export {router}

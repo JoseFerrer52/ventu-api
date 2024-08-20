@@ -2,7 +2,7 @@ import { createPool } from "mysql2/promise";
 import { CONFIG } from "../../config.js";
 
 
-async function conectarABaseDeDatos() {
+async function connectToDataBase() {
     try {
         const pool = createPool({
             host: CONFIG.app.database.host,
@@ -21,4 +21,4 @@ async function conectarABaseDeDatos() {
     }
 }
 
-export{ conectarABaseDeDatos}
+export{ connectToDataBase}

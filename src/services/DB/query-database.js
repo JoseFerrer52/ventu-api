@@ -1,4 +1,4 @@
-import { conectarABaseDeDatos } from "./database-connection.js";
+import { connectToDataBase } from "./database-connection.js";
 import { validationErrorResponse } from "../../utilities/errors/error-validation.js";
 import { notFoundErrorResponse } from "../../utilities/errors/error-not-found.js";
 import { forbiddenErrorResponse } from "../../utilities/errors/error-forbidden.js";
@@ -8,7 +8,7 @@ import { mergeUserData } from "../../controllers/adapters/adapter-regitersUser.j
 import { checkPassword } from "../../auth/check-password.js";
 
 export const selectBusinessRubros = async () => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     `SELECT 
       business_rubro_id AS businessRubros,
@@ -23,7 +23,7 @@ export const selectBusinessRubros = async () => {
 };
 
 export const resgitreUser = async (data, userPassword, businessLogo) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const { rows } = await pool.query(
     "CALL sp_singup_user(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
     [
@@ -56,7 +56,7 @@ export const resgitreUser = async (data, userPassword, businessLogo) => {
 };
 
 export const UpadteUser = async (data, userPassword, businessLogo) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const { rows } = await pool.query(
     "CALL sp_update_business(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
     [
@@ -90,7 +90,7 @@ export const UpadteUser = async (data, userPassword, businessLogo) => {
 };
 
 export const authUser = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "CALL sp_singin_user(?, @o_state_code, @o_response)",
     [data.userName]
@@ -135,7 +135,7 @@ export const authUser = async (data) => {
 };
 
 export const selectAllTransactions = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "SELECT user_business_id FROM user_business WHERE user_id = ?",
     [data.userId]
@@ -230,7 +230,7 @@ export const selectAllTransactions = async (data) => {
 };
 
 export const selectSale = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "SELECT user_business_id FROM user_business WHERE user_id = ?",
     [data.userId]
@@ -303,7 +303,7 @@ export const selectSale = async (data) => {
 };
 
 export const selectOtherIncome = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "SELECT user_business_id FROM user_business WHERE user_id = ?",
     [data.userId]
@@ -362,7 +362,7 @@ export const selectOtherIncome = async (data) => {
 export const selectExpenses = async (data) => {
   console.log("here!!!", data.transactionId);
   
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "SELECT user_business_id FROM user_business WHERE user_id = ?",
     [data.userId]
@@ -413,7 +413,7 @@ export const selectExpenses = async (data) => {
 };
 
 export const selectAllSaleReceivable = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "SELECT user_business_id FROM user_business WHERE user_id = ?",
     [data.userId]
@@ -441,7 +441,7 @@ export const selectAllSaleReceivable = async (data) => {
 };
 
 export const selectSaleReceivable = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "SELECT user_business_id FROM user_business WHERE user_id = ?",
     [data.userId]
@@ -509,7 +509,7 @@ export const selectSaleReceivable = async (data) => {
 };
 
 export const selectAllCustomers = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "SELECT user_business_id FROM user_business WHERE user_id = ?",
     [data.userId]
@@ -537,7 +537,7 @@ export const selectAllCustomers = async (data) => {
 };
 
 export const selectCustomer = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "SELECT user_business_id FROM user_business WHERE user_id = ?",
     [data.userId]
@@ -574,7 +574,7 @@ export const selectCustomer = async (data) => {
 };
 
 export const updateCustomer = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "CALL sp_update_customer(?, ?, ?, ?, ?, ?,  @o_state_code, @o_response)",
     [
@@ -602,7 +602,7 @@ export const updateCustomer = async (data) => {
 };
 
 export const customerDelete = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "CALL sp_delete_customer(?, ?, ?,  @o_state_code, @o_response)",
     [data.userId, data.userBusinessId, data.customerId]
@@ -623,7 +623,7 @@ export const customerDelete = async (data) => {
 };
 
 export const selectAllProducts = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "SELECT user_business_id FROM user_business WHERE user_id = ?",
     [data.userId]
@@ -649,7 +649,7 @@ export const selectAllProducts = async (data) => {
 };
 
 export const selectProduct = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "SELECT user_business_id FROM user_business WHERE user_id = ?",
     [data.userId]
@@ -684,7 +684,7 @@ export const selectProduct = async (data) => {
 };
 
 export const registerproduct = async (data, productImage) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "CALL sp_create_product (?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
     [
@@ -711,7 +711,7 @@ export const registerproduct = async (data, productImage) => {
 };
 
 export const updateProduct = async (data, productImage) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "CALL sp_update_product(?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
     [
@@ -743,7 +743,7 @@ export const updateProduct = async (data, productImage) => {
 };
 
 export const productDelete = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(
     "CALL sp_delete_product(?, ?, ?, @o_state_code, @o_response)",
     [data.userId, data.userBusinessId, data.productId]
@@ -768,7 +768,7 @@ export const productDelete = async (data) => {
 };
 
 export const selectTypeTransaction = async () =>{
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(`
     SELECT 
     type_transaction_id AS typeTransactionId,
@@ -783,7 +783,7 @@ export const selectTypeTransaction = async () =>{
 
 
 export const selectTypeIncome = async () =>{
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(`
     SELECT 
     type_income_id AS typeIncomeId,
@@ -798,7 +798,7 @@ export const selectTypeIncome = async () =>{
 
 
 export const selectSaleTypes = async () =>{
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const [rows] = await pool.query(`
     SELECT 
     sale_type_id AS saleTypeId,
@@ -812,7 +812,7 @@ export const selectSaleTypes = async () =>{
 }
 
 export const resgiterSale = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const { rows } = await pool.query(
     "CALL sp_create_sale(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
     [
@@ -851,7 +851,7 @@ export const resgiterSale = async (data) => {
 };
 
 export const resgiterSaleReceivable = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const { rows } = await pool.query(
     "CALL sp_create_sale_receivable(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
     [
@@ -893,7 +893,7 @@ export const resgiterSaleReceivable = async (data) => {
 };
 
 export const registerCustomerPaymentReceivable = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const { rows } = await pool.query(
     "CALL sp_create_customer_payment_receivable(?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
     [
@@ -924,7 +924,7 @@ export const registerCustomerPaymentReceivable = async (data) => {
 };
 
 export const registerOtherIncome = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const { rows } = await pool.query(
     "CALL sp_create_other_incomes(?, ?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
     [
@@ -954,7 +954,7 @@ export const registerOtherIncome = async (data) => {
 };
 
 export const registerExpenses = async (data) => {
-  const pool = await conectarABaseDeDatos();
+  const pool = await connectToDataBase();
   const { rows } = await pool.query(
     "CALL sp_create_expenses(?, ?, ?, ?, ?, ?, ?, @o_state_code, @o_response)",
     [
