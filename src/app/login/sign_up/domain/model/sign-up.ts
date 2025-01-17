@@ -7,3 +7,9 @@ export interface DataInputForSignUp {
   updateDate: string;
   userEmail: string;
 }
+
+export interface SignUpResponse {
+  token: string;
+  responseEmail: string;
+  userId: number;
+}

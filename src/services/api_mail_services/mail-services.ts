@@ -53,25 +53,29 @@ const sendEmail = async ({
   text,
   html,
 }: EmailOptions): Promise<void> => {
-  const transporter = await createTransporter();
+  try {
+    const transporter = await createTransporter();
 
-  const mailOptions = {
-    from: configApiMail.user,
-    to,
-    subject,
-    text,
-    html,
-  };
+    const mailOptions = {
+      from: configApiMail.user,
+      to,
+      subject,
+      text,
+      html,
+    };
 
-  return new Promise<void>((resolve, reject) => {
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return reject(error);
-      }
-      console.log("Correo enviado: " + info.response);
-      resolve();
+    return new Promise<void>((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return reject(error);
+        }
+        console.log("Correo enviado: " + info.response);
+        resolve();
+      });
     });
-  });
+  } catch (emailError) {
+    console.error("Error enviando email:", emailError);
+    throw new Error("Ocurrió un error al enviar el correo electrónico");
+  }
 };
-
 export { sendEmail };

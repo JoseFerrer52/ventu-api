@@ -3,13 +3,23 @@ import { Response } from "express";
 export const response = (
   res: Response,
   status: number,
-  message: string | void,
-  object: any
+  serRes: {
+    message: string;
+    object: any;
+    token: string;
+  }
 ) => {
-  res.status(status).json({
-    error: false,
-    status: status,
-    message: message,
-    object: object,
-  });
+  res
+    .status(status)
+    .json({
+      error: false,
+      status: status,
+      message: serRes.message,
+      object: serRes.object,
+    })
+    .cookie("XSRF-TOKEN", serRes.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
 };
