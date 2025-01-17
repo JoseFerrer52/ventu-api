@@ -15,7 +15,7 @@ app.use(helmet());
 app.use(cors({}));
 app.use(logger("dev"));
 app.use("/api", routerDefault);
-app.use("/api", router);
+app.use(router);
 
 interface ErrorResponse extends Error {
   status: number;
