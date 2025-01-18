@@ -14,14 +14,18 @@ interface SignIn {
 }
 
 export interface SignInResponse {
-  dataUser: SignIn[];
+  message: string;
+  object: SignIn[];
+  token: string;
 }
 
 interface SignInForBusiness {
   userId: number;
-  token: string;
+  registerBusiness: boolean;
 }
 
 export interface SignInForRegisterBusiness {
-  dataUser: SignInForBusiness[];
+  message: string;
+  object: SignInForBusiness[];
+  token: string;
 }

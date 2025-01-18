@@ -12,5 +12,5 @@ export const signIn = async (req: Request, res: Response) => {
   const authUserFunc = await authUser(pool);
   const dataUser = await authUserFunc(data);
 
-  response(res, 200, "ok", dataUser);
+  response(res, 200, dataUser);
 };
