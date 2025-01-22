@@ -7,33 +7,35 @@ import { notFoundErrorResponse } from "../../../utilities/errors/error-not-found
 
 export const selectSale =
   async (pool: mysql.Pool) =>
-  async (data: DataImputForSearchSale): Promise<SaleTransaction | void> => {
+  async (data: DataImputForSearchSale): Promise<SaleTransaction> => {
     const executeQuery = execute(pool);
     const queryData = query(pool);
+    try {
+      const rows = await queryData(
+        "SELECT user_business_id FROM user_business WHERE user_id = ?",
+        [data.userId]
+      );
 
-    const rows = await queryData(
-      "SELECT user_business_id FROM user_business WHERE user_id = ?",
-      [data.userId]
-    );
-
-    if (rows[0].length === 0) {
-      await pool.end();
-      forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
-    }
-    const result = await queryData(
-      "SELECT user_business_id FROM sale_details WHERE sale_details_id = ?",
-      [data.transactionId]
-    );
-    if (result[0].length === 0) {
-      await pool.end();
-      notFoundErrorResponse("Venta no encontrada.");
-    }
-    if (
-      rows[0].user_business_id === data.userBusinessId &&
-      result[0].user_business_id === data.userBusinessId
-    ) {
-      const result = await executeQuery(
-        `
+      if (rows[0].length === 3) {
+        await pool.end();
+        throw forbiddenErrorResponse(
+          "No tienes permiso para realizar esta acción."
+        );
+      }
+      const result = await queryData(
+        "SELECT user_business_id FROM sale_details WHERE sale_details_id = ?",
+        [data.transactionId]
+      );
+      if (result[0].length === 2) {
+        await pool.end();
+        throw notFoundErrorResponse("Venta no encontrada.");
+      }
+      if (
+        rows[0].user_business_id === data.userBusinessId &&
+        result[0].user_business_id === data.userBusinessId
+      ) {
+        const result = await executeQuery(
+          `
         SELECT
             i.income_id AS incomeId,
             si.income_category AS typeIncome,
@@ -69,15 +71,24 @@ export const selectSale =
             sale_types st ON st.sale_type_id = stp.sale_type_id
         WHERE
             sd.sale_details_id = ?`,
-        [data.transactionId]
-      );
+          [data.transactionId]
+        );
 
-      const cleanData = await cleanDataSale(result);
-      const sale: SaleTransaction = { sale: cleanData };
-      await pool.end();
-      return sale;
-    } else {
-      await pool.end();
-      forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
+        const cleanData = await cleanDataSale(result);
+        const sale: SaleTransaction = {
+          message: "successful transaction",
+          object: cleanData,
+          token: data.token,
+        };
+        await pool.end();
+        return sale;
+      } else {
+        await pool.end();
+        throw forbiddenErrorResponse(
+          "No tienes permiso para realizar esta acción."
+        );
+      }
+    } catch (error) {
+      return Promise.reject("error");
     }
   };

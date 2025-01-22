@@ -8,33 +8,35 @@ import { notFoundErrorResponse } from "../../../utilities/errors/error-not-found
 
 export const selectOtherIncome =
   async (pool: mysql.Pool) =>
-  async (data: DataImputForSearchSale): Promise<OtherIncome | void> => {
+  async (data: DataImputForSearchSale): Promise<OtherIncome> => {
     const executeQuery = execute(pool);
     const queryData = query(pool);
+    try {
+      const rows = await queryData(
+        "SELECT user_business_id FROM user_business WHERE user_id = ?",
+        [data.userId]
+      );
 
-    const rows = await queryData(
-      "SELECT user_business_id FROM user_business WHERE user_id = ?",
-      [data.userId]
-    );
-
-    if (rows[0].length === 0) {
-      await pool.end();
-      forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
-    }
-    const result = await queryData(
-      "SELECT user_business_id FROM other_incomes WHERE other_income_id = ?",
-      [data.transactionId]
-    );
-    if (result[0].length === 0) {
-      await pool.end();
-      notFoundErrorResponse("Ingreso no encontrado.");
-    }
-    if (
-      rows[0].user_business_id === data.userBusinessId &&
-      result[0].user_business_id === data.userBusinessId
-    ) {
-      const rows = await executeQuery(
-        `
+      if (rows[0].length === 3) {
+        await pool.end();
+        throw forbiddenErrorResponse(
+          "No tienes permiso para realizar esta acción."
+        );
+      }
+      const result = await queryData(
+        "SELECT user_business_id FROM other_incomes WHERE other_income_id = ?",
+        [data.transactionId]
+      );
+      if (result[0].length === 2) {
+        await pool.end();
+        throw notFoundErrorResponse("Ingreso no encontrado.");
+      }
+      if (
+        rows[0].user_business_id === data.userBusinessId &&
+        result[0].user_business_id === data.userBusinessId
+      ) {
+        const rows = await executeQuery(
+          `
          SELECT
             i.income_id AS incomeId,
             si.income_category AS typeIncome,
@@ -53,17 +55,26 @@ export const selectOtherIncome =
         WHERE
             oi.other_income_id = ?;
     `,
-        [data.transactionId]
-      );
+          [data.transactionId]
+        );
 
-      const cleanData = await cleanDataOtherIncome(rows);
+        const cleanData = await cleanDataOtherIncome(rows);
 
-      const transaction: OtherIncome = { otherIncome: cleanData };
+        const transaction: OtherIncome = {
+          message: "successful transaction",
+          object: cleanData,
+          token: data.token,
+        };
 
-      await pool.end();
-      return transaction;
-    } else {
-      await pool.end();
-      forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
+        await pool.end();
+        return transaction;
+      } else {
+        await pool.end();
+        throw forbiddenErrorResponse(
+          "No tienes permiso para realizar esta acción."
+        );
+      }
+    } catch (error) {
+      return Promise.reject("error");
     }
   };

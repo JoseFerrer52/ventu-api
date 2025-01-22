@@ -2,6 +2,7 @@
 export interface TransactionInput {
   userId: number;
   userBusinessId: number;
+  token: string;
 }
 
 // Interface para la salida de datos o representación de los datos de transacciones
@@ -33,5 +34,7 @@ interface Transaction {
 }
 
 export interface AllTransaction {
-  transaction: Transaction;
+  message: string;
+  object: Transaction;
+  token: string;
 }

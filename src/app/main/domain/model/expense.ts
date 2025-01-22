@@ -10,5 +10,7 @@ interface Transacción {
 }
 
 export interface Expense {
-  expense: Transacción[];
+  message: string;
+  object: Transacción[];
+  token: string;
 }

@@ -15,9 +15,9 @@ export const getAlltransaction = async (req: Request, res: Response) => {
   const data: TransactionInput = req.body;
   const getAllTransactionsFunc = await getAllTransactions(pool);
 
-  const products = await getAllTransactionsFunc(data);
+  const transaction = await getAllTransactionsFunc(data);
 
-  response(res, 200, "ok", products);
+  response(res, 200, transaction);
 };
 
 export const getTransaction = async (req: Request, res: Response) => {
@@ -27,20 +27,19 @@ export const getTransaction = async (req: Request, res: Response) => {
     if (data.typeIncomeId === 1) {
       const selectSaleFunc = await selectSale(pool);
       const sale = await selectSaleFunc(data);
-      response(res, 200, "ok", sale);
+      response(res, 200, sale);
     } else if (data.typeIncomeId === 2) {
       const selectOtherIncomeFunc = await selectOtherIncome(pool);
       const otherIncome = await selectOtherIncomeFunc(data);
-      console.log(otherIncome);
 
-      response(res, 200, "ok", otherIncome);
+      response(res, 200, otherIncome);
     } else {
       validationErrorResponse("El tipo de transacción no exite");
     }
   } else if (data.typetransactionId === 2) {
     const selectExpenseFunc = await selectExpenses(pool);
     const expense = await selectExpenseFunc(data);
-    response(res, 200, "ok", expense);
+    response(res, 200, expense);
   } else {
     validationErrorResponse("El tipo de transacción no exite");
   }

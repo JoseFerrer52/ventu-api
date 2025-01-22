@@ -4,6 +4,7 @@ export interface DataImputForSearchSale {
   transactionId: number;
   typetransactionId: number;
   typeIncomeId?: number;
+  token: string;
 }
 
 interface Sale {
@@ -26,5 +27,7 @@ interface Sale {
 }
 
 export interface SaleTransaction {
-  sale: Sale[];
+  message: string;
+  object: Sale[];
+  token: string;
 }

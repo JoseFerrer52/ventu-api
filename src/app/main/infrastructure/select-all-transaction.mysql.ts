@@ -12,25 +12,31 @@ import { forbiddenErrorResponse } from "../../../utilities/errors/error-forbidde
 
 export const getAllTransactions =
   async (pool: mysql.Pool) =>
-  async (data: TransactionInput): Promise<AllTransaction | void> => {
+  async (data: TransactionInput): Promise<AllTransaction> => {
     const executeQuery = execute(pool);
     const queryData = query(pool);
 
-    const rows = await queryData(
-      "SELECT user_business_id FROM user_business WHERE user_id = ?",
-      [data.userId]
-    );
+    try {
+      const rows = await queryData(
+        "SELECT user_business_id FROM user_business WHERE user_id = ?",
+        [data.userId]
+      );
 
-    console.log(rows);
+      console.log(rows);
 
-    if (!Array.isArray(rows) || rows.length === 0) {
-      await pool.end();
-      forbiddenErrorResponse("No tienes permiso para realizar esta acción");
-    }
-
-    if (rows[0].user_business_id === data.userBusinessId) {
-      const rows = await executeQuery(
-        `
+      if (!Array.isArray(rows) || rows.length === 0) {
+        await pool.end();
+        forbiddenErrorResponse("No tienes permiso para realizar esta acción");
+      }
+      if (rows[0].user_business_id !== data.userBusinessId) {
+        await pool.end();
+        throw forbiddenErrorResponse(
+          "No tienes permiso para realizar esta acción."
+        );
+        // return Promise.reject("error");
+      } else {
+        const rows = await executeQuery(
+          `
         SELECT
             i.income_id AS incomeId,
             i.type_transaction_id AS typeTransactionId,
@@ -77,11 +83,11 @@ export const getAllTransactions =
         WHERE
             i.user_business_id = ?;
     `,
-        [data.userBusinessId, data.userBusinessId]
-      );
+          [data.userBusinessId, data.userBusinessId]
+        );
 
-      const result = await executeQuery(
-        ` 
+        const result = await executeQuery(
+          ` 
       SELECT
             e.expenses_id AS expensesId,
             e.type_transaction_id AS typeTransactionId,
@@ -98,25 +104,30 @@ export const getAllTransactions =
           expenses_type et ON e.expenses_type_id = et.expenses_type_id 
       WHERE
             e.user_business_id = ?;`,
-        [data.userBusinessId]
-      );
-      //console.log("aqui esta el log", rows);
-      // console.log("aqui esta el log", result);
+          [data.userBusinessId]
+        );
+        //console.log("aqui esta el log", rows);
+        // console.log("aqui esta el log", result);
 
-      const income = await cleanDataIncome(rows);
-      //console.log("aqui esta tu income", income);
+        const income = await cleanDataIncome(rows);
+        //console.log("aqui esta tu income", income);
 
-      const expense = await cleanDataExpense(result);
-      const mergedResult = { income, expense };
-      //console.log("aqui esta tu log del merge", mergedResult);
+        const expense = await cleanDataExpense(result);
+        const mergedResult = { income, expense };
+        //console.log("aqui esta tu log del merge", mergedResult);
 
-      const transaction: AllTransaction = { transaction: mergedResult };
-      await pool.end();
-      //console.log("trasactioon", transaction);
+        const transaction: AllTransaction = {
+          message: "successful transaction",
+          object: mergedResult,
+          token: data.token,
+        };
+        await pool.end();
+        //console.log("trasactioon", transaction);
 
-      return transaction;
-    } else {
-      await pool.end();
-      forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
+        return transaction;
+      }
+    } catch (error) {
+      return Promise.reject("error");
+      // throw new Error("error");
     }
   };

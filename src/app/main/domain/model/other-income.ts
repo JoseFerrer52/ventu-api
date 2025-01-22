@@ -10,5 +10,7 @@ interface Transacción {
 }
 
 export interface OtherIncome {
-  otherIncome: Transacción[];
+  message: string;
+  object: Transacción[];
+  token: string;
 }
