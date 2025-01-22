@@ -17,7 +17,7 @@ export const response = (
       message: serRes.message,
       object: serRes.object,
     })
-    .cookie("XSRF-TOKEN", serRes.token, {
+    .cookie("XSRF_TOKEN", serRes.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",

@@ -7,8 +7,12 @@ function checkToken() {
 
     validateToken.confirmToken(req, userId);
 
+    console.log("log desde checkToken", validateToken.confirmToken);
+
     next();
   }
+  console.log("log desde checkToken middelware", middelware);
+
   return middelware;
 }
 
