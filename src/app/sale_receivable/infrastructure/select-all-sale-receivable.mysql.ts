@@ -34,13 +34,13 @@ export const selectAllSaleReceivable =
 
         const cleanData = await cleanDataAllSaleReceivable(result);
 
-        const transaction = {
+        const allSaleReceivable = {
           message: "Transacción exitosa",
           object: cleanData,
           token: data.token,
         };
         await pool.end();
-        return transaction;
+        return allSaleReceivable;
       } else {
         await pool.end();
         throw forbiddenErrorResponse(

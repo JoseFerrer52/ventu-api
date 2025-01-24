@@ -27,7 +27,7 @@ import {
   postProducts,
   putProduct,
   deleteProduct,
-} from "./products.controllers";
+} from "./products.controller";
 
 const router = Router();
 

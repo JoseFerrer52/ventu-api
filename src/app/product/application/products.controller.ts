@@ -18,7 +18,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
   const selectAllProductsFunc = await selectAllProducts(pool);
   const product = await selectAllProductsFunc(data);
 
-  response(res, 200, "ok", product);
+  response(res, 200, product);
 };
 
 export const getProduct = async (req: Request, res: Response) => {
@@ -27,7 +27,7 @@ export const getProduct = async (req: Request, res: Response) => {
   const selectProductFunc = await selectProduct(pool);
   const product = await selectProductFunc(data);
 
-  response(res, 200, "ok", product);
+  response(res, 200, product);
 };
 
 export const postProducts = async (req: Request, res: Response) => {
@@ -39,7 +39,7 @@ export const postProducts = async (req: Request, res: Response) => {
   const registerproductFunc = await registerproduct(pool);
   const product = await registerproductFunc(data, productImage);
 
-  response(res, 200, product, {});
+  response(res, 200, product);
 };
 
 export const putProduct = async (req: Request, res: Response) => {
@@ -50,13 +50,13 @@ export const putProduct = async (req: Request, res: Response) => {
     const updateProductFunc = await updateProduct(pool);
     const product = await updateProductFunc(data, null);
 
-    response(res, 200, product, {});
+    response(res, 200, product);
   } else {
     const productImage: string = await uploadImageToServer(file);
     const updateProductFunc = await updateProduct(pool);
     const product = await updateProductFunc(data, productImage);
 
-    response(res, 200, product, {});
+    response(res, 200, product);
   }
 };
 
@@ -66,5 +66,5 @@ export const deleteProduct = async (req: Request, res: Response) => {
   const productDeleteFunc = await productDelete(pool);
   const product = await productDeleteFunc(data);
 
-  response(res, 200, product, {});
+  response(res, 200, product);
 };

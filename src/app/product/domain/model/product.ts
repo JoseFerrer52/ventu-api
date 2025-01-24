@@ -5,4 +5,11 @@ export interface DataForProduct {
   productName: string;
   productDescription: string;
   productAmount: number;
+  token: string;
+}
+
+export interface Product {
+  message: string;
+  object: any;
+  token: string;
 }

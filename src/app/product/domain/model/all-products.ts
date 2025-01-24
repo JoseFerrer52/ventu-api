@@ -2,6 +2,7 @@ export interface DataInputForProduct {
   userId: number;
   userBusinessId: number;
   productId?: number;
+  token: string;
 }
 
 interface Product {
@@ -12,5 +13,7 @@ interface Product {
 }
 
 export interface ProductResponse {
-  product: Product[];
+  message: string;
+  object: Product[];
+  token: string;
 }
