@@ -6,4 +6,11 @@ export interface DataInputForExpense {
   expensesDate: string;
   expensesAmount: number;
   expensesAdditionalNote: string;
+  token: string;
+}
+
+export interface OtherIncome {
+  message: string;
+  object: any;
+  token: string;
 }

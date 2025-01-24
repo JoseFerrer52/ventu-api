@@ -10,5 +10,5 @@ export const postExpenses = async (req: Request, res: Response) => {
   const data: DataInputForExpense = req.body;
   const registerExpensesFunc = await registerExpenses(pool);
   const expense = await registerExpensesFunc(data);
-  response(res, 200, expense, {});
+  response(res, 200, expense);
 };
