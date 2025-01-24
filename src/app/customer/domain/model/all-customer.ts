@@ -2,6 +2,7 @@ export interface DataImputForCustomer {
   userId: number;
   userBusinessId: number;
   customerId?: number;
+  token: string;
 }
 
 interface Customer {
@@ -12,5 +13,7 @@ interface Customer {
 }
 
 export interface CustomerResponse {
-  customer: Customer[];
+  message: string;
+  object: Customer[];
+  token: string;
 }

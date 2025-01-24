@@ -14,7 +14,7 @@ export const getAllCustomers = async (req: Request, res: Response) => {
   const data: DataImputForCustomer = req.body;
   const selectAllCustomersFunc = await selectAllCustomers(pool);
   const customers = await selectAllCustomersFunc(data);
-  response(res, 200, "ok", customers);
+  response(res, 200, customers);
 };
 
 export const getCustomer = async (req: Request, res: Response) => {
@@ -23,7 +23,7 @@ export const getCustomer = async (req: Request, res: Response) => {
 
   const customer = await selectCustomerFunc(data);
 
-  response(res, 200, "ok", customer);
+  response(res, 200, customer);
 };
 
 export const putCustomer = async (req: Request, res: Response) => {
@@ -31,7 +31,7 @@ export const putCustomer = async (req: Request, res: Response) => {
   const updateCustomerFunc = await updateCustomer(pool);
   const customer = await updateCustomerFunc(data);
 
-  response(res, 200, customer, {});
+  response(res, 200, customer);
 };
 
 export const deleteCustomer = async (req: Request, res: Response) => {
@@ -40,5 +40,5 @@ export const deleteCustomer = async (req: Request, res: Response) => {
   const customerDeleteFunc = await customerDelete(pool);
   const customer = await customerDeleteFunc(data);
 
-  response(res, 200, customer, {});
+  response(res, 200, customer);
 };

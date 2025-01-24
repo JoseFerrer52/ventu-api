@@ -5,8 +5,11 @@ export interface UpdateDataForCustomer {
   customerName: string;
   customerPhone: string;
   customerAlias: string;
+  token: string;
 }
 
-export interface Message {
+export interface Customer {
   message: string;
+  object: any;
+  token: string;
 }
