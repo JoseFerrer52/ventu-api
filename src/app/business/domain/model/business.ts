@@ -5,6 +5,7 @@ export interface DataInputForBusiness {
   businessName: string;
   businessUpdateDate: string;
   description: string;
+  token: string;
 }
 
 export interface DataInputForCreateBusiness {
@@ -27,5 +28,7 @@ interface Business {
 }
 
 export interface BussinessResponse {
-  dataUser: Business[];
+  message: string;
+  object: Business[];
+  token: string;
 }
