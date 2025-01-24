@@ -7,4 +7,11 @@ export interface DataInputOtheIncome {
   date: string;
   amount: number;
   additionalNote: string;
+  token: string;
+}
+
+export interface OtherIncome {
+  message: string;
+  object: any;
+  token: string;
 }

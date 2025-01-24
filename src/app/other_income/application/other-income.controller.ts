@@ -10,5 +10,5 @@ export const postOtherIncome = async (req: Request, res: Response) => {
   const data: DataInputOtheIncome = req.body;
   const registerOtherIncomeFunc = await registerOtherIncome(pool);
   const otherIncome = await registerOtherIncomeFunc(data);
-  response(res, 200, otherIncome, {});
+  response(res, 200, otherIncome);
 };

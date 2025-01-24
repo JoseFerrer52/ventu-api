@@ -44,12 +44,12 @@ export const resgiterSale =
         throw notFoundErrorResponse(message);
       } else {
         await pool.end();
-        const response: DirectSale = {
+        const directSaleResponse: DirectSale = {
           message: "Venta registrada con exito",
           object: null,
           token: data.token,
         };
-        return response;
+        return directSaleResponse;
       }
     } catch (error) {
       throw new Error("error");
