@@ -17,3 +17,15 @@ export interface RegisterSaleReceivable extends DataInputSaleReceivable {
   additionalNote: string;
   debtAmount: number;
 }
+
+export interface SaleReceivable {
+  message: string;
+  object: any;
+  token: string;
+}
+
+export interface paymentReceivable {
+  message: string;
+  object: any;
+  token: string;
+}

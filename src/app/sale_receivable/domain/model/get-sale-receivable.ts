@@ -2,6 +2,7 @@ export interface DataInputSaleReceivable {
   userId: number;
   userBusinessId: number;
   saleReceivableId?: number;
+  token: string;
 }
 
 interface SaleReceivable {
@@ -13,7 +14,9 @@ interface SaleReceivable {
 }
 
 export interface Transaction {
-  saleReceivable: SaleReceivable[];
+  message: string;
+  object: SaleReceivable[];
+  token: string;
 }
 
 interface Sale {
@@ -35,5 +38,7 @@ interface Sale {
 }
 
 export interface SaleReceivableResponse {
-  saleReceivable: Sale[];
+  message: string;
+  object: Sale[];
+  token: string;
 }

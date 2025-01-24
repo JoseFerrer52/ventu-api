@@ -16,7 +16,7 @@ export const getAllSaleReceivable = async (req: Request, res: Response) => {
   const selectAllSaleReceivableFunc = await selectAllSaleReceivable(pool);
   const saleReceivable = await selectAllSaleReceivableFunc(data);
 
-  response(res, 200, "ok", saleReceivable);
+  response(res, 200, saleReceivable);
 };
 
 export const getSaleReceivable = async (req: Request, res: Response) => {
@@ -25,7 +25,7 @@ export const getSaleReceivable = async (req: Request, res: Response) => {
   const selectSaleReceivableFunc = await selectSaleReceivable(pool);
   const saleReceivable = await selectSaleReceivableFunc(data);
 
-  response(res, 200, "ok", saleReceivable);
+  response(res, 200, saleReceivable);
 };
 
 export const postSaleReceivable = async (req: Request, res: Response) => {
@@ -34,7 +34,7 @@ export const postSaleReceivable = async (req: Request, res: Response) => {
   const resgiterSaleReceivableFunc = await resgiterSaleReceivable(pool);
   const saleReceivable = await resgiterSaleReceivableFunc(data);
 
-  response(res, 200, saleReceivable, {});
+  response(res, 200, saleReceivable);
 };
 
 export const postSaleCustomerPaymentReceivable = async (
@@ -45,5 +45,5 @@ export const postSaleCustomerPaymentReceivable = async (
   const registerCustomerPaymentReceivableFunc =
     await registerCustomerPaymentReceivable(pool);
   const saleReceivable = await registerCustomerPaymentReceivableFunc(data);
-  response(res, 200, saleReceivable, {});
+  response(res, 200, saleReceivable);
 };

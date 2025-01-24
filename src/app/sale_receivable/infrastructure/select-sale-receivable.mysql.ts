@@ -10,37 +10,36 @@ import { notFoundErrorResponse } from "../../../utilities/errors/error-not-found
 
 export const selectSaleReceivable =
   async (pool: mysql.Pool) =>
-  async (
-    data: DataInputSaleReceivable
-  ): Promise<SaleReceivableResponse | void> => {
+  async (data: DataInputSaleReceivable): Promise<SaleReceivableResponse> => {
     const executeQuery = execute(pool);
     const queryData = query(pool);
 
-    const rows = await queryData(
-      "SELECT user_business_id FROM user_business WHERE user_id = ?",
-      [data.userId]
-    );
+    try {
+      const rows = await queryData(
+        "SELECT user_business_id FROM user_business WHERE user_id = ?",
+        [data.userId]
+      );
 
-    if (rows[0].length === 0) {
-      await pool.end();
-      forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
-      return;
-    }
-    const result = await queryData(
-      "SELECT user_business_id FROM sale_receivable WHERE sale_receivable_id = ?",
-      [data.saleReceivableId]
-    );
-    if (result[0].length === 0) {
-      await pool.end();
-      notFoundErrorResponse("venta por cobrar no encontrada.");
-      return;
-    }
-    if (
-      rows[0].user_business_id === data.userBusinessId &&
-      result[0].user_business_id === data.userBusinessId
-    ) {
-      const rows = await executeQuery(
-        `
+      if (rows[0].length === 3) {
+        await pool.end();
+        throw forbiddenErrorResponse(
+          "No tienes permiso para realizar esta acción."
+        );
+      }
+      const result = await queryData(
+        "SELECT user_business_id FROM sale_receivable WHERE sale_receivable_id = ?",
+        [data.saleReceivableId]
+      );
+      if (result[0].length === 2) {
+        await pool.end();
+        throw notFoundErrorResponse("venta por cobrar no encontrada.");
+      }
+      if (
+        rows[0].user_business_id === data.userBusinessId &&
+        result[0].user_business_id === data.userBusinessId
+      ) {
+        const rows = await executeQuery(
+          `
           SELECT
               sr.sale_receivable_id AS transactionId,
               c.customer_name AS customerName,
@@ -70,14 +69,23 @@ export const selectSaleReceivable =
               sale_types st ON st.sale_type_id = stp.sale_type_id
           WHERE
               sr.sale_receivable_id = ?`,
-        [data.saleReceivableId]
-      );
-      const cleanData = await cleanDataSaleReceivable(rows);
-      const transaction = { saleReceivable: cleanData };
-      await pool.end();
-      return transaction;
-    } else {
-      await pool.end();
-      forbiddenErrorResponse("No tienes permiso para realizar esta acción.");
+          [data.saleReceivableId]
+        );
+        const cleanData = await cleanDataSaleReceivable(rows);
+        const saleReceivable = {
+          message: "Transacción exitosa",
+          object: cleanData,
+          token: data.token,
+        };
+        await pool.end();
+        return saleReceivable;
+      } else {
+        await pool.end();
+        throw forbiddenErrorResponse(
+          "No tienes permiso para realizar esta acción."
+        );
+      }
+    } catch (error) {
+      throw new Error("error");
     }
   };
