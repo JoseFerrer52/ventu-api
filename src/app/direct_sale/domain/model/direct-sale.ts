@@ -13,4 +13,11 @@ export interface DataInputDirectSale {
   saleDescription: string;
   saleAmount: number;
   intemQuantity: Number;
+  token: string;
+}
+
+export interface DirectSale {
+  message: string;
+  object: any;
+  token: string;
 }

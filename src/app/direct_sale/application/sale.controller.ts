@@ -11,5 +11,5 @@ export const postSale = async (req: Request, res: Response) => {
   const resgiterSaleFunc = await resgiterSale(pool);
   const sale = await resgiterSaleFunc(data);
 
-  response(res, 200, sale, {});
+  response(res, 200, sale);
 };
