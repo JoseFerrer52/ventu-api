@@ -4,5 +4,7 @@ interface Income {
 }
 
 export interface TypeIncome {
-  typeIncome: Income[];
+  message: string;
+  object: Income[];
+  token: string;
 }

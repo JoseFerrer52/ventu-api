@@ -4,5 +4,7 @@ interface Transaction {
 }
 
 export interface TypeTransaction {
-  transaction: Transaction[];
+  message: string;
+  object: Transaction[];
+  token: string;
 }

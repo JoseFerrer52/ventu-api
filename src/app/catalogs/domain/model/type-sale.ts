@@ -4,5 +4,7 @@ interface Sale {
 }
 
 export interface TypeSale {
-  typeSale: Sale[];
+  message: string;
+  object: Sale[];
+  token: string;
 }

@@ -4,5 +4,7 @@ export interface Rubros {
 }
 
 export interface TypeRubros {
-  rubros: Rubros[];
+  message: string;
+  object: Rubros[];
+  token: string;
 }
