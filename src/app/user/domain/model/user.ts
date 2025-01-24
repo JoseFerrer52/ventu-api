@@ -6,4 +6,11 @@ export interface DataInputForUser {
   userPassword: string;
   updateDate: string;
   userEmail: string;
+  token: string;
+}
+
+export interface User {
+  message: string;
+  object: any;
+  token: string;
 }

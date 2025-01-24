@@ -13,11 +13,11 @@ export const putUser = async (req: Request, res: Response) => {
   if (!data.userPassword) {
     const UpadteUserFunc = await UpadteUser(pool);
     const user = await UpadteUserFunc(data, null);
-    response(res, 200, user, {});
+    response(res, 200, user);
   } else {
     const encryp = await bcrypt.hash(data.userPassword, 10);
     const UpadteUserFunc = await UpadteUser(pool);
     const user = await UpadteUserFunc(data, encryp);
-    response(res, 200, user, {});
+    response(res, 200, user);
   }
 };
