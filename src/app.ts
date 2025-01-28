@@ -14,8 +14,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cors({}));
 app.use(logger("dev"));
-app.use("/api", routerDefault);
-app.use(router);
+app.use(routerDefault);
+app.use("/api", router);
 
 interface ErrorResponse extends Error {
   status: number;

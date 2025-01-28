@@ -9,7 +9,7 @@ import { signIn } from "./sign-in.controller";
 const router = Router();
 
 router.post(
-  "/singIn",
+  "/signin",
   singInValidate(createSingInValidation),
   cachedAsync(signIn)
 );

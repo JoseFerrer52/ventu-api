@@ -9,7 +9,7 @@ export interface DataInputForSignUp {
 }
 
 export interface SignUpResponse {
+  message: string;
+  object: any;
   token: string;
-  responseEmail: string;
-  userId: number;
 }

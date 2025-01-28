@@ -18,7 +18,6 @@ function verifyToken(token: string, userId: number) {
       iat: decode.iat,
       exp: decode.exp,
     }));
-    console.log("log aquiiiiiiiii", mappedRows);
 
     if (mappedRows[0].id !== userId) {
       throw forbiddenErrorResponse(
@@ -30,12 +29,10 @@ function verifyToken(token: string, userId: number) {
         userPassword: mappedRows[0].userPassword,
         id: mappedRows[0].id,
       };
-      const refreshToken = jwt.sign(data, secret, { expiresIn: "1h" });
-      console.log("refreshToken", refreshToken);
+      const refreshToken = jwt.sign(data, secret, { expiresIn: "168h" });
 
       return refreshToken;
     }
-    return tokenDecode;
   } catch (error) {
     return unauthorizedErrorResponse("Token invalido");
   }

@@ -5,10 +5,12 @@ function checkTokenTemporary() {
   function middelware(req: Request, _res: Response, next: NextFunction) {
     const userId = Number(req.body.userId);
 
-    validateToken.confirmToken(req, userId);
+    const confirmToken = validateToken(req, userId);
+    req.body.token = confirmToken;
 
     next();
   }
+
   return middelware;
 }
 

@@ -18,52 +18,51 @@ export const authUser =
     const executeQuery = execute(pool);
     const queryData = query(pool);
 
-    try {
-      const [rows] = await pool.query(
-        "CALL sp_sign_in_user(?, @o_state_code, @o_response, @user_id_business)",
-        [data.userName]
-      );
-      const result = await queryData(
-        "SELECT @o_state_code AS state, @o_response AS message, @user_id_business AS businessExits"
-      );
-      const stateCode = result[0].state;
-      const message = result[0].message;
-      const businessExits = result[0].businessExits;
-      console.log("businessExist log", businessExits);
+    const [rows] = await pool.query(
+      "CALL sp_sign_in_user(?, @o_state_code, @o_response, @user_id_business)",
+      [data.userName]
+    );
+    const result = await queryData(
+      "SELECT @o_state_code AS state, @o_response AS message, @user_id_business AS businessExits"
+    );
+    const stateCode = result[0].state;
+    const message = result[0].message;
+    const businessExits = result[0].businessExits;
+    console.log("businessExist log", businessExits);
 
-      if (stateCode === 1) {
-        await pool.end();
-        validationErrorResponse(message);
-      }
-      if (businessExits === null) {
-        const response = rows[0][0];
-        const userName = data.userName;
-        const userPassword = response.user_password;
-        const userId = response.user_id;
-        const registerBusiness = false;
-        const token = generaToken({ userName, userPassword, userId });
+    if (stateCode === 1) {
+      await pool.end();
+      validationErrorResponse(message);
+    }
+    if (businessExits === null) {
+      const response = rows[0][0];
+      const userName = data.userName;
+      const userPassword = response.user_password;
+      const userId = response.user_id;
+      const registerBusiness = false;
+      const token = generaToken({ userName, userPassword, userId });
 
-        const message = "User not register business";
+      const message = "User not register business";
 
-        const mergedIdAndBussinessRegister = [{ userId, registerBusiness }];
-        const dataUser: SignInForRegisterBusiness = {
-          message: message,
-          object: mergedIdAndBussinessRegister,
-          token: token,
-        };
-        await pool.end();
-        return dataUser;
-      } else {
-        const response = rows[0][0];
-        const password = response.user_password;
-        const id = response.user_id;
+      const mergedIdAndBussinessRegister = [{ userId, registerBusiness }];
+      const dataUser: SignInForRegisterBusiness = {
+        message: message,
+        object: mergedIdAndBussinessRegister,
+        token: token,
+      };
+      await pool.end();
+      return dataUser;
+    } else {
+      const response = rows[0][0];
+      const password = response.user_password;
+      const id = response.user_id;
 
-        console.log("log this", rows);
+      console.log("log this", rows);
 
-        const passwordAndToken = await checkPassword(data, password, id);
+      const passwordAndToken = await checkPassword(data, password, id);
 
-        const result = await executeQuery(
-          `SELECT
+      const result = await executeQuery(
+        `SELECT
             u.user_id AS userId,
             u.first_name AS firstName,
             u.last_name AS lastName,
@@ -78,24 +77,21 @@ export const authUser =
           user_business ub ON u.user_id = ub.user_id
         WHERE
             u.user_id = ?`,
-          [id]
-        );
+        [id]
+      );
 
-        const token = passwordAndToken;
-        const registerBusiness = true;
-        const arrayMap = [result[0]];
-        const message = "Login Success";
+      const token = passwordAndToken;
+      const registerBusiness = true;
+      const arrayMap = [result[0]];
+      const message = "Login Success";
 
-        const mergedResult = await addTokenToUser(arrayMap, registerBusiness);
-        const dataUser: SignInResponse = {
-          message: message,
-          object: mergedResult,
-          token: token,
-        };
-        await pool.end();
-        return dataUser;
-      }
-    } catch (error) {
-      throw new Error("error");
+      const mergedResult = await addTokenToUser(arrayMap, registerBusiness);
+      const dataUser: SignInResponse = {
+        message: message,
+        object: mergedResult,
+        token: token,
+      };
+      await pool.end();
+      return dataUser;
     }
   };
