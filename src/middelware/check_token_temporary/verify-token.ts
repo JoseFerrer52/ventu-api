@@ -8,13 +8,13 @@ const secret = CONFIG.app.secret.jwt;
 function verifyToken(token: string, userId: number) {
   try {
     const tokenDecode = jwt.verify(token, secret);
-    console.log("userIdNotMetter", userId);
     const decode = [tokenDecode];
+    console.log(decode);
 
     const mappedRows = decode.map((decode: any) => ({
       userName: decode.userName,
       userPassword: decode.userPassword,
-      userId: decode.id,
+      userId: decode.userId,
       iat: decode.iat,
       exp: decode.exp,
     }));

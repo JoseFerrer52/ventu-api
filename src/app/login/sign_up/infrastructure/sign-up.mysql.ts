@@ -1,6 +1,6 @@
 import { execute, query } from "../../../../data/mysql";
 import mysql from "mysql2/promise";
-import otplib from "otplib";
+import { authenticator } from "otplib";
 import { sendEmail } from "../../../../services/api_mail_services/mail-services";
 import { SignUpResponse } from "../domain/model/sign-up";
 import { DataInputForSignUp } from "../domain/model/sign-up";
@@ -16,8 +16,8 @@ export const registerUser =
   ): Promise<SignUpResponse> => {
     const executeQuery = execute(pool);
     const queryData = query(pool);
-    otplib.authenticator.options = { step: 300 }; // Token válido por 60 segundos
-    const secret = otplib.authenticator.generateSecret();
+    authenticator.options = { step: 300 }; // Token válido por 60 segundos
+    const secret = authenticator.generateSecret();
 
     const rows = await queryData(
       "CALL sp_sign_up_user(?, ?, ?, ?, ?, ?, ?,?, @o_state_code, @o_response)",
@@ -43,7 +43,7 @@ export const registerUser =
     if (result.state === 0) {
       const userId = rows[0][0].user_id;
       const token = generaToken({ userId });
-      const code = otplib.authenticator.generate(secret);
+      const code = authenticator.generate(secret);
 
       await sendEmail({
         to: data.userEmail,

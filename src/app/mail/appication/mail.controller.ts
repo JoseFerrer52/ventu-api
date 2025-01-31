@@ -1,10 +1,27 @@
 import { Response, Request } from "express";
-//import { response } from "../../../utilities/response";
-//import { DataImputForSendEmail } from "../domain/model/send-email";
-//import { sendEmailService } from "../infrastructure/send-email-services";
+import { createPool } from "../../../data/mysql";
+import { response } from "../../../utilities/response";
+import {
+  DataImputForConfirmEmail,
+  DataImputForRefreshEmail,
+} from "../domain/model/confirm-email";
+import { confirmEmailUser } from "../infrastructure/confirm-email-services";
+import { refreshEmailUser } from "../infrastructure/refresh-email-services";
 
-export const sendMail = async (_req: Request, _res: Response) => {
-  //const data: DataImputForSendEmail = req.body;
-  // const responseEmail = await sendEmailService(data);
-  //response(res, 200, responseEmail, {});
+const pool = createPool();
+
+export const confirmMail = async (req: Request, res: Response) => {
+  const data: DataImputForConfirmEmail = req.body;
+  const confirmEmail = await confirmEmailUser(pool);
+  const responseEmail = await confirmEmail(data);
+
+  response(res, 200, responseEmail);
+};
+
+export const refreshMail = async (req: Request, res: Response) => {
+  const data: DataImputForRefreshEmail = req.body;
+  const refreshEmail = await refreshEmailUser(pool);
+  const responseEmail = await refreshEmail(data);
+
+  response(res, 200, responseEmail);
 };

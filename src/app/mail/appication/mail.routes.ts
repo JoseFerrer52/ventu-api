@@ -1,19 +1,29 @@
 import { Router } from "express";
-import { checkToken } from "../../../middelware/check_token/check-token";
+import { checkTokenTemporary } from "../../../middelware/check_token_temporary/check-token";
 import { cachedAsync } from "../../../utilities/cached-async";
 import {
   emailValidate,
   createEmailValidation,
 } from "../../../middelware/validations/email-validation";
-import { sendMail } from "./mail.controller";
+import {
+  refreshEmailValidate,
+  createRefreshEmailValidation,
+} from "../../../middelware/validations/refresh-email-validation";
+import { confirmMail, refreshMail } from "./mail.controller";
 
 const router = Router();
 
 router.post(
-  "/send-mail/:id/:token",
-  checkToken(),
+  "/confirm-mail",
+  checkTokenTemporary(),
   emailValidate(createEmailValidation),
-  cachedAsync(sendMail)
+  cachedAsync(confirmMail)
+);
+router.post(
+  "/refresh-mail",
+  checkTokenTemporary(),
+  refreshEmailValidate(createRefreshEmailValidation),
+  cachedAsync(refreshMail)
 );
 
 export default router;

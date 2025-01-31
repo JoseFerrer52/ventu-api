@@ -7,12 +7,12 @@ interface ValidationSchema {
   userEmail?: string;
 }
 
-function emailValidate(
-  createEmailValidation: (data: unknown) => Promise<ValidationSchema>
+function refreshEmailValidate(
+  createRefreshEmailValidation: (data: unknown) => Promise<ValidationSchema>
 ) {
   return async (req: Request, _res: Response, next: NextFunction) => {
     try {
-      const validatedData = await createEmailValidation(req.body);
+      const validatedData = await createRefreshEmailValidation(req.body);
 
       console.log(validatedData);
       req.body = validatedData;
@@ -24,7 +24,9 @@ function emailValidate(
   };
 }
 
-async function createEmailValidation(data: unknown): Promise<ValidationSchema> {
+async function createRefreshEmailValidation(
+  data: unknown
+): Promise<ValidationSchema> {
   const schema = yup.object().shape({
     userId: yup
       .number()
@@ -33,7 +35,10 @@ async function createEmailValidation(data: unknown): Promise<ValidationSchema> {
       })
       .typeError("Id incorrecto")
       .required("El campo id de usuario no puede estar vacio."),
-    code: yup.string().required("El campo id de usuario no puede estar vacio"),
+    userEmail: yup
+      .string()
+      .email("Correo electronico invalido")
+      .required("El campo id de usuario no puede estar vacio."),
   });
 
   const validatedData = await schema.validate(data);
@@ -42,4 +47,4 @@ async function createEmailValidation(data: unknown): Promise<ValidationSchema> {
   return validatedData;
 }
 
-export { emailValidate, createEmailValidation };
+export { refreshEmailValidate, createRefreshEmailValidation };

@@ -22,7 +22,6 @@ export const query =
       const [rows] = await pool.query(sql, params);
       return rows;
     } catch (err) {
-      pool.end();
       throw new Error(`Error en la consulta: ${err.message}`);
     }
   };
