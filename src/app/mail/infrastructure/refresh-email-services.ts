@@ -1,7 +1,7 @@
 import mysql from "mysql2/promise";
 import { authenticator } from "otplib";
 import { query } from "../../../data/mysql";
-import { generaToken } from "../../../auth/token_to_register_user";
+import { generaToken } from "../../../auth/token";
 import { sendEmail } from "../../../services/api_mail_services/mail-services";
 import {
   confirmEmail,

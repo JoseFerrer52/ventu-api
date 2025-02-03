@@ -11,7 +11,8 @@ import userRoutes from "../app/user/application/user.routes";
 import businessRoutes from "../app/business/application/business.routes";
 import signUpRoutes from "../app/login/sign_up/application/sign-up.routes";
 import signInRoutes from "../app/login/sign_in/application/sign-in.routes";
-import emailRoutes from "../app/mail/appication/mail.routes";
+import emailRoutes from "../app/mail/application/mail.routes";
+import logout from "../app/logout/application/logout.routes";
 const router = Router();
 
 router.use("/catalogs", catalogsRoutes);
@@ -26,6 +27,7 @@ router.use("/user", userRoutes);
 router.use("/business", businessRoutes);
 router.use("/login", signUpRoutes);
 router.use("/login", signInRoutes);
+router.use("/logout", logout);
 router.use("/mail", emailRoutes);
 
 export default router;

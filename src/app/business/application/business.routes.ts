@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { cachedAsync } from "../../../utilities/cached-async";
 import { checkToken } from "../../../middelware/check_token/check-token";
-import { checkTokenTemporary } from "../../../middelware/check_token_temporary/check-token";
 import {
   validateUpadteBusiness,
   createFileUpadteBusinessValidation,
@@ -21,7 +20,7 @@ const router = Router();
 router.post(
   "/register-business",
   upload.single("file"),
-  checkTokenTemporary(),
+  checkToken(),
   registerBusinessValidate(
     createFormRegisterBusinessValidation,
     createFileRegisterBussinesValidation

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkTokenTemporary } from "../../../middelware/check_token_temporary/check-token";
+import { checkToken } from "../../../middelware/check_token/check-token";
 import { cachedAsync } from "../../../utilities/cached-async";
 import {
   emailValidate,
@@ -15,13 +15,13 @@ const router = Router();
 
 router.post(
   "/confirm-mail",
-  checkTokenTemporary(),
+  checkToken(),
   emailValidate(createEmailValidation),
   cachedAsync(confirmMail)
 );
 router.post(
   "/refresh-mail",
-  checkTokenTemporary(),
+  checkToken(),
   refreshEmailValidate(createRefreshEmailValidation),
   cachedAsync(refreshMail)
 );

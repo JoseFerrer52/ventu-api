@@ -7,7 +7,7 @@ import {
 } from "../domain/model/sign-in";
 import { addTokenToUser } from "../domain/add-token-to-user";
 import { checkPassword } from "../../../../auth/token/check-password";
-import { generaToken } from "../../../../auth/token_to_register_user";
+import { generaToken } from "../../../../auth/token";
 import { validationErrorResponse } from "../../../../utilities/errors/error-validation";
 
 export const authUser =

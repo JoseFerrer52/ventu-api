@@ -5,7 +5,7 @@ import { sendEmail } from "../../../../services/api_mail_services/mail-services"
 import { SignUpResponse } from "../domain/model/sign-up";
 import { DataInputForSignUp } from "../domain/model/sign-up";
 import { conflictErrorResponse } from "../../../../utilities/errors/error-conflict";
-import { generaToken } from "../../../../auth/token_to_register_user";
+import { generaToken } from "../../../../auth/token";
 // import { addTokenToRegister } from "../domain/model/add-token-to-user";
 
 export const registerUser =

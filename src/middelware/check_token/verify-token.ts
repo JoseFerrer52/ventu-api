@@ -14,12 +14,12 @@ function verifyToken(token: string, userId: number) {
     const mappedRows = decode.map((decode: any) => ({
       userName: decode.userName,
       userPassword: decode.userPassword,
-      id: decode.id,
+      userId: decode.userId,
       iat: decode.iat,
       exp: decode.exp,
     }));
 
-    if (mappedRows[0].id !== userId) {
+    if (mappedRows[0].userId !== userId) {
       throw forbiddenErrorResponse(
         "No tienes persmiso para realizar esta acción"
       );
@@ -27,7 +27,7 @@ function verifyToken(token: string, userId: number) {
       const data = {
         userName: mappedRows[0].userName,
         userPassword: mappedRows[0].userPassword,
-        id: mappedRows[0].id,
+        userId: mappedRows[0].userId,
       };
       const refreshToken = jwt.sign(data, secret, { expiresIn: "168h" });
 

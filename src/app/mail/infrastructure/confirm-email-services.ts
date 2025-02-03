@@ -1,7 +1,7 @@
 import mysql from "mysql2/promise";
 import { authenticator } from "otplib";
 import { execute, query } from "../../../data/mysql";
-import { generaToken } from "../../../auth/token_to_register_user";
+import { generaToken } from "../../../auth/token";
 import { validationErrorResponse } from "../../../utilities/errors/error-validation";
 import {
   DataImputForConfirmEmail,
