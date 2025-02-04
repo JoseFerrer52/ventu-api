@@ -11,30 +11,26 @@ export const customerDelete =
     const executeQuery = execute(pool);
     const queryData = query(pool);
 
-    try {
-      await queryData(
-        "CALL sp_delete_customer(?, ?, ?,  @o_state_code, @o_response)",
-        [data.userId, data.userBusinessId, data.customerId]
-      );
-      const result = await executeQuery(
-        "SELECT @o_state_code AS state, @o_response AS message"
-      );
-      const stateCode = result[0].state;
-      const message = result[0].message;
+    await queryData(
+      "CALL sp_delete_customer(?, ?, ?,  @o_state_code, @o_response)",
+      [data.userId, data.userBusinessId, data.customerId]
+    );
+    const result = await executeQuery(
+      "SELECT @o_state_code AS state, @o_response AS message"
+    );
+    const stateCode = result[0].state;
+    const message = result[0].message;
 
-      if (stateCode === 3) {
-        throw forbiddenErrorResponse(message);
-      } else if (stateCode === 2) {
-        throw notFoundErrorResponse(message);
-      } else {
-        const customer: Customer = {
-          message: message,
-          object: null,
-          token: data.token,
-        };
-        return customer;
-      }
-    } catch (error) {
-      throw new Error("error");
+    if (stateCode === 3) {
+      throw forbiddenErrorResponse(message);
+    } else if (stateCode === 2) {
+      throw notFoundErrorResponse(message);
+    } else {
+      const customer: Customer = {
+        message: message,
+        object: null,
+        token: data.token,
+      };
+      return customer;
     }
   };
