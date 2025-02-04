@@ -1,15 +1,10 @@
-export async function addTokenToBusiness(data, token: string) {
+export async function recordDataToUser(data) {
   try {
     const mergedData = data.map((record) => {
       return {
         userId: record.userId,
-        firstName: record.firstName,
-        lastName: record.lastName,
-        userEmail: record.userEmail,
         userBusinessId: record.userBusinessId,
-        businessName: record.businessName,
         businessLogo: record.businessLogo,
-        token: token,
       };
     });
     return mergedData;

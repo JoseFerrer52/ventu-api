@@ -1,4 +1,4 @@
-export interface DataInputForBusiness {
+export interface DataInputForUpdateBusiness {
   userId: number;
   userBusinessId: number;
   sectorId: number;
@@ -15,6 +15,7 @@ export interface DataInputForCreateBusiness {
   businessDateCreation: string;
   businessUpdateDate: string;
   businessDescription: string;
+  token: string;
 }
 
 interface Business {
