@@ -7,28 +7,24 @@ export const getBusinessRubros = async (
 ): Promise<TypeRubros> => {
   const executeQuery = execute(pool);
 
-  try {
-    const rows = await executeQuery(`
+  const rows = await executeQuery(`
     SELECT 
       business_rubro_id AS businessRubrosId,
       business_sector_category AS businessSectorCategory
     FROM business_rubros
   `);
 
-    const mappedRows = rows.map((row: any) => ({
-      businessRubrosId: row.businessRubrosId,
-      businessSectorCategory: row.businessSectorCategory,
-    }));
+  const mappedRows = rows.map((row: any) => ({
+    businessRubrosId: row.businessRubrosId,
+    businessSectorCategory: row.businessSectorCategory,
+  }));
 
-    const businessRubros: TypeRubros = {
-      message: "Transacción exitosa",
-      object: mappedRows,
-      token: "null",
-    };
+  const businessRubros: TypeRubros = {
+    message: "Transacción exitosa",
+    object: mappedRows,
+    token: "null",
+  };
 
-    await pool.end();
-    return businessRubros;
-  } catch (error) {
-    throw new Error("error");
-  }
+  await pool.end();
+  return businessRubros;
 };

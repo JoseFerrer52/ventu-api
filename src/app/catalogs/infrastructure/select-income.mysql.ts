@@ -6,29 +6,26 @@ export const selectTypeIncome = async (
   pool: mysql.Pool
 ): Promise<TypeIncome> => {
   const executeQuery = execute(pool);
-  try {
-    const rows = await executeQuery(`
+
+  const rows = await executeQuery(`
         SELECT 
         type_income_id AS typeIncomeId,
         income_category AS incomeCategory
         FROM type_income`);
 
-    console.log("aqui esta", rows);
+  console.log("aqui esta", rows);
 
-    const mappedRows = rows.map((row: any) => ({
-      typeIncomeId: row.typeIncomeId,
-      incomeCategory: row.incomeCategory,
-    }));
+  const mappedRows = rows.map((row: any) => ({
+    typeIncomeId: row.typeIncomeId,
+    incomeCategory: row.incomeCategory,
+  }));
 
-    console.log(mappedRows);
+  console.log(mappedRows);
 
-    const typeIncome: TypeIncome = {
-      message: "Trasacción exitosa",
-      object: mappedRows,
-      token: "null",
-    };
-    return typeIncome;
-  } catch (error) {
-    throw new Error("error");
-  }
+  const typeIncome: TypeIncome = {
+    message: "Trasacción exitosa",
+    object: mappedRows,
+    token: "null",
+  };
+  return typeIncome;
 };
